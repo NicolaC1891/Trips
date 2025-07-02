@@ -1,9 +1,15 @@
 from aiogram import F, Router
-from aiogram.types import Message
 from aiogram.filters import CommandStart
-import keyboards.keyboards_menu as kb
-import keyboards.keyboards_bel as kb_bel
-from aiogram.types import CallbackQuery
+from sqlalchemy import select
+from sqlalchemy.exc import SQLAlchemyError
+
+from keyboards.keyboards_bel import bel_menu_kb
+from keyboards.keyboards_menu import main_menu_kb, back_to_main_kb
+from aiogram.types import CallbackQuery, Message
+from logger.log import logger
+from database.models import MessageMenu
+from database.db import async_session_factory
+
 
 router_menu = Router()
 
@@ -11,34 +17,34 @@ router_menu = Router()
 @router_menu.message(CommandStart())
 async def cmd_start(message: Message):
     user_name = message.from_user.full_name
-    await message.answer(f"Здравствуйте, {user_name}!\n\n"
-                         f"Какая командировка вас интересует?", reply_markup=kb.inline_main)
+    await message.answer(f"<b>Здравствуйте, {user_name}!</b>\n\n"
+                         f"Я помогу вам c организацией командировки: подскажу, как оформить документы, "
+                         f"согласовать поездку и что делать по возвращении.\n\n"
+                         f"<b>Какая командировка вас интересует?</b>", reply_markup=main_menu_kb)
 
 
-@router_menu.callback_query(F.data == 'feedback')
-async def cmd_feedback(callback_query: CallbackQuery):
-    await callback_query.answer('Вы запросили помощь')
-    await callback_query.message.answer('Помощь в пути', reply_markup=kb.feedback)
+def register_handler(filter_value, keyboard):
+    @router_menu.callback_query(F.data == filter_value)
+    async def create_handler(callback_query: CallbackQuery):
+        async with async_session_factory() as session:
+            query = select(MessageMenu).filter_by(key=filter_value)
+            try:
+                statement = await session.scalar(query)
+                if not statement:
+                    await callback_query.message.answer('Извините, запрашиваемая информация временно недоступна.')
+                    logger.error(f'Запись с ключом {filter_value} не найдена')
+                    return
+            except SQLAlchemyError as e:
+                logger.error(f"Ошибка выполнения запроса: {e}")
+                await callback_query.message.answer('Произошел сбой. Пожалуйста, попробуйте позже')
+                return
+            await callback_query.answer()
+            await callback_query.message.answer(statement.answer, reply_markup=keyboard)
 
 
-@router_menu.callback_query(F.data == 'start')
-async def cmd_back_to_main(callback_query: CallbackQuery):
-    await callback_query.answer('Идем в начало')
-    await callback_query.message.answer(f"Какая командировка вас интересует?", reply_markup=kb.inline_main)
-
-@router_menu.callback_query(F.data == 'can_do')
-async def cmd_can_do(callback_query: CallbackQuery):
-    await callback_query.answer('Вам интересно, что я умею?')
-    await callback_query.message.answer(f"Пока ничего интересного, но хозяин старается", reply_markup=kb.can_do)
-
-
-@router_menu.callback_query(F.data == 'faq')
-async def cmd_can_do(callback_query: CallbackQuery):
-    await callback_query.answer('Частые вопросы')
-    await callback_query.message.answer(f"Здесь будут ответы на часто задаваемые вопросы", reply_markup=kb.faq)
-
-
-@router_menu.callback_query(F.data == 'travel_bel')
-async def cmd_can_do(callback_query: CallbackQuery):
-    await callback_query.answer('Командировки по РБ')
-    await callback_query.message.answer(f"Здесь будет информация о командировках по РБ", reply_markup=kb_bel.inline_bel)
+register_handler(filter_value='travel_bel', keyboard=bel_menu_kb)
+register_handler(filter_value='travel_rus', keyboard=main_menu_kb)
+register_handler(filter_value='faq', keyboard=back_to_main_kb)
+register_handler(filter_value='help', keyboard=back_to_main_kb)
+register_handler(filter_value='feedback', keyboard=back_to_main_kb)
+register_handler(filter_value='to_main', keyboard=main_menu_kb)
