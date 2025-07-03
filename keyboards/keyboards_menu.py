@@ -1,14 +1,18 @@
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+"""
+Custom keyboards for main menu
+"""
+
+from aiogram.types import InlineKeyboardMarkup
 from keyboards.button_factory import options_button, back_to_main_button
 
 
 def main_menu_keyboard():
     inline_main = InlineKeyboardMarkup(inline_keyboard=[
-[options_button(f"🇧🇾 🇧🇾 🇧🇾 ПО БЕЛАРУСИ 🇧🇾 🇧🇾 🇧🇾", 'travel_bel')],
-[options_button(f"🌍 🌍 🌍 ЗА ГРАНИЦУ 🌍 🌍 🌍", 'travel_rus')],
-[options_button(f"💬 ЧАстые ВОпросы", 'faq')],
-[options_button(f"ℹ️ Помощь", 'help'),
- options_button(f"🐈‍⬛ Обратная связь", 'feedback')]
+[options_button(f"🇧🇾 🇧🇾 🇧🇾  ПО БЕЛАРУСИ  🇧🇾 🇧🇾 🇧🇾", 'travel_bel')],
+[options_button(f"🌍 🌍 🌍  ЗА ГРАНИЦУ  🌍 🌍 🌍", 'travel_rus')],
+[options_button(f"ℹ️  Инструкция", 'faq')],
+[options_button(f"🆘  Помощь", 'help'),
+ options_button(f"🐈‍⬛  Кот-бот", 'feedback')]
 ])
     return inline_main
 

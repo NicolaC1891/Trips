@@ -1,3 +1,7 @@
+"""
+Database connection configuration
+"""
+
 import os
 from settings import config, BASE_DIR
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker

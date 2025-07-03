@@ -1,3 +1,7 @@
+"""
+ORM data models
+"""
+
 from sqlalchemy import Integer
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.ext.asyncio import AsyncAttrs

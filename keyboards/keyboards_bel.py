@@ -1,3 +1,7 @@
+"""
+Custom keyboards for Bel trips menu
+"""
+
 from aiogram.types import InlineKeyboardMarkup
 from keyboards.button_factory import back_button, forward_button, upward_button, back_to_main_button
 from keyboards.button_factory import options_button
@@ -25,7 +29,26 @@ def request_keyboard():
     return request_menu
 
 
+def report_keyboard():
+    report_menu = InlineKeyboardMarkup(inline_keyboard=[
+        [options_button(text=f"В PDF", callback_data='report_pdf'),
+         options_button(text=f"На бумаге", callback_data='report_paper')],
+        [back_button(callback_data='on_trip')],
+        [upward_button(text=f"🇧🇾 Наверх", callback_data='travel_bel'), back_to_main_button()]
+    ])
+    return report_menu
+
+
 def bel_options_kb(back=None, forward=None, upward=None, upward_callback=None):
+    """
+    Factory of navigation keyboards for menu options
+    :param back: callback to previous message in business logic process
+    :param forward: callback to next message in business logic process
+    :param upward: button text depending on menu level
+    :param upward_callback: callback to upper level menu
+    :return:
+    """
+
     bel_options = []
     row_1 = []
     if back:
@@ -54,4 +77,7 @@ completion_kb = bel_options_kb(back='chancellor', forward='approval', upward=f"�
 approval_kb = bel_options_kb(back='completion', forward='order', upward=f"⬆ Наверх", upward_callback='request_all')
 order_kb = bel_options_kb(back='approval', forward='on_trip', upward=f"🇧🇾 Наверх", upward_callback='travel_bel')
 trip_kb = bel_options_kb(back='order', forward='report', upward=f"🇧🇾 Наверх", upward_callback='travel_bel')
-report_kb = bel_options_kb(back='on_trip', upward=f"🇧🇾 Наверх", upward_callback='travel_bel')
+
+report_kb = report_keyboard()
+report_pdf_kb = bel_options_kb(upward=f"⬆ Наверх", upward_callback='report')
+report_paper_kb = bel_options_kb(upward=f"⬆ Наверх", upward_callback='report')
