@@ -1,28 +1,21 @@
-"""
-Pydantic data class to read .env
-"""
-
+from pydantic_settings import BaseSettings
+from pydantic import BaseModel, SecretStr
+from pathlib import Path
 import os
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import SecretStr, BaseModel
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
+BASE_DIR = Path(__file__).resolve().parent
 
 class Database(BaseModel):
-    DB_URL: str
-
+    # Значение по умолчанию: для локальной машины
+    DB_URL: str = f"sqlite+aiosqlite:///{os.path.abspath(BASE_DIR / 'database' / 'business_trips.db')}"
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(
-        case_sensitive=False,
-        env_file=os.path.join(BASE_DIR, ".env"),
-        env_file_encoding="utf-8",
-        env_nested_delimiter="__",  # This enables nested loading
-    )
-
     BOT_TOKEN: SecretStr
-    database: Database
+    database: Database = Database()
 
+    model_config = {
+        "env_file": ".env",
+        "env_nested_delimiter": "__"
+    }
 
 config = Settings()
