@@ -2,7 +2,6 @@ import asyncio
 
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
-from aiogram.exceptions import AiogramError
 from aiogram.types import BotCommand
 from aiogram.client.default import DefaultBotProperties
 

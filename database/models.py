@@ -18,15 +18,7 @@ class MessageMenu(Base):
     answer: Mapped[str]    # nullable False by default
 
 
-class MessageBel(Base):
-    __tablename__: str = 'msg_bel'
+class CatPhrase(Base):
+    __tablename__: str = 'cat_phrase'
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    key: Mapped[str]
-    answer: Mapped[str]    # nullable False by default
-
-
-class MessageRus(Base):
-    __tablename__: str = 'msg_rus'
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    key: Mapped[str]
-    answer: Mapped[str]    # nullable False by default
+    phrase: Mapped[str]

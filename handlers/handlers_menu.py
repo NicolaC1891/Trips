@@ -13,12 +13,13 @@ from aiogram.types import CallbackQuery, Message
 
 from keyboards.keyboards_rus import rus_menu_kb
 from logger.log import logger
-from database.models import MessageMenu
+from database.models import MessageMenu, CatPhrase
 from database.db import async_session_factory
-
+from cat_bot.features import get_today_wisdom
 
 router_menu = Router()
 
+# START COMMANDS
 
 @router_menu.message(CommandStart())
 async def cmd_start(message: Message):
@@ -55,6 +56,7 @@ async def cmd_help(message: Message):
         await message.answer(statement.answer, reply_markup=back_to_main_kb)
 
 
+# MENU HANDLERS
 
 def register_handler(filter_value: str, keyboard):
     """
@@ -67,6 +69,7 @@ def register_handler(filter_value: str, keyboard):
     async def create_handler(callback_query: CallbackQuery):
         async with async_session_factory() as session:
             query = select(MessageMenu).filter_by(key=filter_value)
+
             try:
                 statement = await session.scalar(query)
                 if not statement:
@@ -78,12 +81,39 @@ def register_handler(filter_value: str, keyboard):
                 await callback_query.message.answer('Произошел сбой. Пожалуйста, попробуйте позже')
                 return
             await callback_query.answer()
-            await callback_query.message.answer(statement.answer, reply_markup=keyboard)
+            final_message = statement.answer
+            await callback_query.message.answer(final_message, reply_markup=keyboard)
+
+
+@router_menu.callback_query(F.data == 'feedback')
+async def register_cat_handler(callback_query: CallbackQuery):
+    async with async_session_factory() as session:
+
+        query = select(MessageMenu).filter_by(key='feedback')
+        try:
+            statement = await session.scalar(query)
+            if not statement:
+                await callback_query.message.answer('Извините, запрашиваемая информация временно недоступна.')
+                logger.error(f'Запись с ключом feedback не найдена')
+                return
+        except SQLAlchemyError as e:
+            logger.error(f"Ошибка выполнения запроса: {e}")
+            await callback_query.message.answer('Произошел сбой. Пожалуйста, попробуйте позже')
+            return
+
+        try:
+            cat_wisdom = await get_today_wisdom(session)
+        except Exception as e:
+            logger.error(f'Ошибка получения мудрости кота: {e}')
+            cat_wisdom = ''
+
+        final_message = f"{statement.answer}\n\n{cat_wisdom}"
+        await callback_query.answer()
+        await callback_query.message.answer(final_message, reply_markup=back_to_main_kb)
 
 
 register_handler(filter_value='travel_bel', keyboard=bel_menu_kb)
 register_handler(filter_value='travel_rus', keyboard=rus_menu_kb)
 register_handler(filter_value='faq', keyboard=back_to_main_kb)
 register_handler(filter_value='help', keyboard=back_to_main_kb)
-register_handler(filter_value='feedback', keyboard=back_to_main_kb)
 register_handler(filter_value='to_main', keyboard=main_menu_kb)
