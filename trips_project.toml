@@ -1,0 +1,16 @@
+[tool.black]
+line-length = 120
+
+[tool.isort]
+profile = "black"
+line_length = 120
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"    # r - brief reports, a - all reasons, q - abbreviated output
+testpaths = ["tests"]    # tests directory
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+strict = true

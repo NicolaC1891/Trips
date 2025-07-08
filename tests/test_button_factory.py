@@ -1,37 +1,39 @@
 from aiogram.types import InlineKeyboardButton
-from keyboards.button_factory import back_to_main_button, back_button, forward_button, upward_button, options_button
+
+from common.buttons import (back_button, back_to_main_button, forward_button,
+                            options_button, upward_button)
 
 
 def test_back_to_main_button():
     button = back_to_main_button()
-    assert isinstance(button, InlineKeyboardButton), "Must return InlineKeyboardButton"
-    assert button.text == '🏠 Главное меню', 'Must have this text (design issue)'
-    assert button.callback_data == 'to_main', 'Must be to_main (DB relation)'
+    assert isinstance(button, InlineKeyboardButton)
+    assert button.text == "🏠  В меню"
+    assert button.callback_data == "to_main"
 
 
 def test_back_button():
-    button = back_button(callback_data='some_callback')
-    assert isinstance(button, InlineKeyboardButton), "Must return InlineKeyboardButton"
-    assert button.text == '⬅ Назад', 'Must have this text (design issue)'
-    assert isinstance (button.callback_data, str), 'Must be string'
+    button = back_button(callback_data="some_callback")
+    assert isinstance(button, InlineKeyboardButton)
+    assert button.text == "⬅  Назад"
+    assert isinstance(button.callback_data, str)
 
 
 def test_forward_button():
-    button = forward_button(callback_data='some_callback')
-    assert isinstance(button, InlineKeyboardButton), "Must return InlineKeyboardButton"
-    assert button.text == '➡ Дальше', 'Must have this text (design issue)'
-    assert isinstance (button.callback_data, str), 'Must be string'
+    button = forward_button(callback_data="some_callback")
+    assert isinstance(button, InlineKeyboardButton)
+    assert button.text == "➡  Дальше"
+    assert isinstance(button.callback_data, str)
 
 
 def test_upward_button():
-    button = upward_button(text='some_text', callback_data='some_callback')
-    assert isinstance(button, InlineKeyboardButton), "Must return InlineKeyboardButton"
-    assert isinstance(button.text, str), 'Must be string (inbound argument)'
-    assert isinstance(button.callback_data, str), 'Must be string'
+    button = upward_button(text="some_text", callback_data="some_callback")
+    assert isinstance(button, InlineKeyboardButton)
+    assert isinstance(button.text, str)
+    assert isinstance(button.callback_data, str)
 
 
 def test_options_button():
-    button = options_button(text='some_text', callback_data='some_callback')
-    assert isinstance(button, InlineKeyboardButton), "Must return InlineKeyboardButton"
-    assert isinstance(button.text, str), 'Must be string (inbound argument)'
-    assert isinstance(button.callback_data, str), 'Must be string'
+    button = options_button(text="some_text", callback_data="some_callback")
+    assert isinstance(button, InlineKeyboardButton)
+    assert isinstance(button.text, str)
+    assert isinstance(button.callback_data, str)
