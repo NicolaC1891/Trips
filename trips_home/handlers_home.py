@@ -31,9 +31,10 @@ def register_handler(filter_value: str, keyboard):
 
     @router_trips_home.callback_query(F.data == filter_value)
     async def create_home_handler(callback_query: CallbackQuery):
+        await callback_query.answer()
         message_text = await fetch_db_message(key=filter_value, table=MessageMenu)
         await callback_query.message.answer(text=message_text, reply_markup=keyboard)
-        await callback_query.answer()
+
 
 
 def register_trips_home_handlers():

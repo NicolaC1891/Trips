@@ -20,6 +20,7 @@ async def handle_prev_month(query: CallbackQuery):
     Args:
     - query (CallbackQuery): The callback query containing data like 'prev_2025_07'.
     """
+    await query.answer()
     year, month = [int(num) for num in query.data.removeprefix("prev_").split("_")]
     month -= 1
     if month == 0:
@@ -27,7 +28,7 @@ async def handle_prev_month(query: CallbackQuery):
         year -= 1
     markup = build_calendar(year, month)
     await query.message.edit_reply_markup(reply_markup=markup)
-    await query.answer()
+
 
 
 @router_calendar.callback_query(F.data.startswith("next_"))
@@ -41,6 +42,7 @@ async def handle_next_month(query: CallbackQuery):
     Args:
     - query (CallbackQuery): The callback query containing data like 'next_2025_07'.
     """
+    await query.answer()
     year, month = [int(num) for num in query.data.removeprefix("next_").split("_")]
     month += 1
     if month == 13:
@@ -48,7 +50,7 @@ async def handle_next_month(query: CallbackQuery):
         year += 1
     markup = build_calendar(year, month)
     await query.message.edit_reply_markup(reply_markup=markup)
-    await query.answer()
+
 
 
 @router_calendar.callback_query(F.data == "reset_calendar")
@@ -63,6 +65,7 @@ async def handle_reset_calendar(query: CallbackQuery):
     Args:
     - query (CallbackQuery): The callback query with data 'reset_calendar'.
     """
+    await query.answer()
     today = date.today()
     markup = build_calendar(today.year, today.month)
     try:
@@ -74,4 +77,14 @@ async def handle_reset_calendar(query: CallbackQuery):
             pass
         else:
             raise
+
+
+
+@router_calendar.callback_query(F.data == "ignore")
+async def handle_reset_calendar(query: CallbackQuery):
+    """
+    Handles clicks on inactive calendar buttons (headers, empty cells, etc.).
+    Simply removes the button highlight without performing any action.
+    """
     await query.answer()
+    pass

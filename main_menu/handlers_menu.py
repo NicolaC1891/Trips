@@ -31,6 +31,7 @@ from common.utils import fetch_db_message
 from database.db import async_session_factory
 from database.models import MessageMenu
 from FSM_Cache.fsm_cache_model import FSMCache
+from logger.log import logger
 from main_menu.keyboards_menu import back_to_main_kb, main_menu_kb
 from my_calendar.generator_cal import build_calendar
 from trips_abroad.keyboards_abroad import abroad_menu_kb
@@ -55,13 +56,10 @@ async def cmd_start(message: Message, command: CommandObject, state: FSMContext)
     user_name = message.from_user.full_name
     message_text = await fetch_db_message(key="to_main", table=MessageMenu)
 
-    if command.args:
-        pass
+    if command.args == "go":
+        logger.info(f"User {user_name} entered via QR code, link /start go")
 
-    await message.answer(
-        f"<b>Здравствуйте, {user_name}!</b>\n\n{message_text}",
-        reply_markup=main_menu_kb,
-    )
+    await message.answer(f"<b>Здравствуйте, {user_name}!</b>\n\n{message_text}", reply_markup=main_menu_kb)
 
 
 
@@ -93,6 +91,7 @@ def register_main_handler(filter_value: str, keyboard):
 
     @router_menu.callback_query(F.data == filter_value)
     async def create_main_handler(callback_query: CallbackQuery):
+        await callback_query.answer()
         message_text = await fetch_db_message(key=filter_value, table=MessageMenu)
         await callback_query.message.answer(message_text, reply_markup=keyboard)
 
@@ -103,12 +102,13 @@ async def register_cat_handler(callback_query: CallbackQuery):
     Handles the 'Cat-bot' menu item.
     Sends a message from the database along with a daily cat wisdom phrase.
     """
+    await callback_query.answer()
     base_message = await fetch_db_message(key="cat_bot", table=MessageMenu)
     async with async_session_factory() as session:
         cat_wisdom = await get_today_wisdom(session)
     final_message = f"{base_message}\n\n{cat_wisdom}"
     await callback_query.message.answer(final_message, reply_markup=back_to_main_kb)
-    await callback_query.answer()
+
 
 
 @router_menu.callback_query(F.data == "my_calendar")
@@ -122,6 +122,7 @@ async def adv_report_handler(callback_query: CallbackQuery, state: FSMContext):
     - callback_query (CallbackQuery): The incoming callback.
     - state (FSMContext): FSM context for managing state transitions within the feature.
     """
+    await callback_query.answer()
     await state.set_state(AdvReportStates.date_selection)  # Feature entry point
     cache = FSMCache(state)
     await cache.clear_data(
@@ -130,7 +131,6 @@ async def adv_report_handler(callback_query: CallbackQuery, state: FSMContext):
     today = date.today()
     year, month = today.year, today.month
     message_text = await fetch_db_message(key="my_calendar", table=MessageMenu)
-    await callback_query.answer()
     await callback_query.message.answer(
         text=message_text, reply_markup=build_calendar(year, month)
     )

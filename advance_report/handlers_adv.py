@@ -30,6 +30,7 @@ async def handle_rep_day_selection(query: CallbackQuery, state: FSMContext):
     - state (FSMContext): The FSM context for the user session.
     """
 
+    await query.answer()
     year, month, day = [int(num) for num in query.data.removeprefix("day_").split("_")]
     selected_date = date(year, month, day)
     reporting_date, notification_date = calculate_reporting_date(selected_date)
@@ -62,7 +63,6 @@ async def handle_rep_day_selection(query: CallbackQuery, state: FSMContext):
         f"Напомнить вам за день до срока сдачи отчета?",
         reply_markup=markup,
     )
-    await query.answer()
 
 
 @router_adv.callback_query(F.data == "exit_adv_report")
@@ -74,11 +74,11 @@ async def handle_exit_adv_report(query: CallbackQuery, state: FSMContext):
     - query (CallbackQuery): The callback query containing the selected date.
     - state (FSMContext): The FSM context for the user session.
     """
+    await query.answer()
     cache = FSMCache(state)
     await cache.clear_data("calendar")
     message_text = await fetch_db_message(key="to_main", table=MessageMenu)
     await query.message.answer(text=message_text, reply_markup=main_menu_kb)
-    await query.answer()
 
 
 @router_adv.callback_query(F.data == "adv_create_reminder")
