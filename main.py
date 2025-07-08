@@ -49,6 +49,8 @@ async def main():
         default=DefaultBotProperties(parse_mode=ParseMode.HTML),
     ) as bot:
         await bot.set_my_commands(commands=commands)
+        await bot.set_my_description("Командировки v.0.9 beta")
+        await bot.set_my_short_description('Помощник для работников "Сбер Банк" (Беларусь) при оформлении командировок')
         dp = Dispatcher()
         dp.startup.register(startup)
         dp.shutdown.register(shutdown)

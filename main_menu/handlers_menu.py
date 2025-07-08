@@ -21,7 +21,7 @@ Functions:
 from datetime import date
 
 from aiogram import F, Router
-from aiogram.filters import Command, CommandStart
+from aiogram.filters import Command, CommandStart, CommandObject
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
@@ -41,8 +41,8 @@ router_menu = Router()
 # COMMANDS
 
 
-@router_menu.message(CommandStart())
-async def cmd_start(message: Message):
+@router_menu.message(CommandStart(deep_link=True))
+async def cmd_start(message: Message, command: CommandObject, state: FSMContext):
     """
     Handles the /start command.
     Greets the user and displays the main menu with a message fetched from the database.
@@ -50,8 +50,11 @@ async def cmd_start(message: Message):
     Args:
     - message (Message): The incoming Telegram message.
     """
+    await state.clear()
+
     user_name = message.from_user.full_name
     message_text = await fetch_db_message(key="to_main", table=MessageMenu)
+
     await message.answer(
         f"<b>Здравствуйте, {user_name}!</b>\n\n{message_text}",
         reply_markup=main_menu_kb,
