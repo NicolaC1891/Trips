@@ -47,7 +47,7 @@ async def handle_rep_day_selection(query: CallbackQuery, state: FSMContext):
                     text="✅ Создать напоминание", callback_data="adv_create_reminder"
                 )
             ],
-            [InlineKeyboardButton(text="✏️ Изменить дату", callback_data="my_calendar")],
+            [InlineKeyboardButton(text="✏️ Изменить дату приезда", callback_data="my_calendar")],
             [
                 InlineKeyboardButton(
                     text="❌ Отказаться и выйти", callback_data="exit_adv_report"

@@ -41,7 +41,7 @@ router_menu = Router()
 # COMMANDS
 
 
-@router_menu.message(CommandStart(deep_link=True))
+@router_menu.message(CommandStart())
 async def cmd_start(message: Message, command: CommandObject, state: FSMContext):
     """
     Handles the /start command.
@@ -55,10 +55,14 @@ async def cmd_start(message: Message, command: CommandObject, state: FSMContext)
     user_name = message.from_user.full_name
     message_text = await fetch_db_message(key="to_main", table=MessageMenu)
 
+    if command.args:
+        pass
+
     await message.answer(
         f"<b>Здравствуйте, {user_name}!</b>\n\n{message_text}",
         reply_markup=main_menu_kb,
     )
+
 
 
 @router_menu.message(Command("help"))
