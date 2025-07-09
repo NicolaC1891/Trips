@@ -38,7 +38,7 @@ def main_menu_keyboard():
             [options_button("🇧🇾 🇧🇾 🇧🇾  ПО БЕЛАРУСИ  🇧🇾 🇧🇾 🇧🇾", "home_travel")],
             [options_button("🌍 🌍 🌍  ЗА ГРАНИЦУ  🌍 🌍 🌍", "abroad_travel")],
             [options_button("🔥 Авансовый отчет (beta)", "my_calendar")],
-            [options_button("ℹ️  Инструкция", "manual")],
+            [options_button("ℹ️  Как пользоваться ботом", "manual")],
             [
                 options_button("🆘  Помощь", "help"),
                 options_button("🐈‍⬛  Кот-бот", "cat_bot"),

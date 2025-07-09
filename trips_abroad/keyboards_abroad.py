@@ -80,12 +80,12 @@ def build_abroad_memo_kb() -> InlineKeyboardMarkup:
         inline_keyboard=[
             [
                 options_button(
-                    text="2.1. Докладная в модуле", callback_data="abroad_memo_fill"
+                    text="2.1. Карточка в модуле", callback_data="abroad_memo_fill"
                 )
             ],
             [
                 options_button(
-                    text="2.2. Обработка докладной", callback_data="abroad_memo_upload"
+                    text='2.2. Выгрузка в СЭД "Канцлер"', callback_data="abroad_memo_upload"
                 )
             ],
             [

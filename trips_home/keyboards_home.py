@@ -71,12 +71,12 @@ def build_home_memo_kb():
         inline_keyboard=[
             [
                 options_button(
-                    text="2.1. Заявка в модуле", callback_data="home_memo_fill"
+                    text="2.1. Карточка в модуле", callback_data="home_memo_fill"
                 )
             ],
             [
                 options_button(
-                    text="2.2. Обработка заявки", callback_data="home_memo_upload"
+                    text='2.2. Выгрузка в СЭД "Канцлер"', callback_data="home_memo_upload"
                 )
             ],
             [
