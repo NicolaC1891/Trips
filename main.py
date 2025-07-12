@@ -6,27 +6,17 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.types import BotCommand
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-
-from advance_report.handlers_adv import router_adv
-from logger.log import logger
-from main_menu.handlers_menu import router_menu
-from my_calendar.handlers_cal import router_calendar
-from schedules.adv_report_jobs import (delete_outdated_reminders,
-                                       send_report_reminder)
+from common.logger.logger import logger
+from infrastructure.telegram.routers import ALL_ROUTERS
+from infrastructure.scheduler.adv_report_jobs import (delete_outdated_reminders,
+                                                      send_report_reminder)
 from settings import config
-from trips_abroad.handlers_abroad import router_trips_abroad
-from trips_home.handlers_home import router_trips_home
+
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     level=logging.INFO,
 )
-
-
-commands = [
-    BotCommand(command="start", description="Начало работы"),
-    BotCommand(command="help", description="Помощь"),
-]
 
 
 async def main():
@@ -48,19 +38,17 @@ async def main():
         token=config.BOT_TOKEN.get_secret_value(),
         default=DefaultBotProperties(parse_mode=ParseMode.HTML),
     ) as bot:
+        commands = [
+            BotCommand(command="start", description="Начало работы"),
+            BotCommand(command="help", description="Помощь"),
+        ]
         await bot.set_my_commands(commands=commands)
         await bot.set_my_description("Командировки v.0.9 beta")
         await bot.set_my_short_description('Помощник для работников "Сбер Банк" (Беларусь) при оформлении командировок')
         dp = Dispatcher()
         dp.startup.register(startup)
         dp.shutdown.register(shutdown)
-        dp.include_routers(
-            router_menu,
-            router_trips_home,
-            router_trips_abroad,
-            router_calendar,
-            router_adv,
-        )
+        dp.include_routers(*ALL_ROUTERS)
         scheduler = AsyncIOScheduler()
         scheduler.add_job(send_report_reminder, "cron", hour=12, args=[bot])
         scheduler.add_job(delete_outdated_reminders, "cron", hour=23)
