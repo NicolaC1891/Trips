@@ -1,4 +1,3 @@
-
 class FlowStep:
     """
     Represents a single step in the business trips instruction flow.
@@ -12,13 +11,15 @@ class FlowStep:
         label (str): Human-readable label/title of the step.
     """
 
-    def __init__(self,
-                 response_key: str,
-                 children: tuple[str, ...] | None,
-                 prev: str | None,
-                 next_: str | None,
-                 parent: str | None,
-                 label: str):
+    def __init__(
+        self,
+        response_key: str,
+        children: tuple[str, ...] | None,
+        prev: str | None,
+        next_: str | None,
+        parent: str | None,
+        label: str,
+    ):
         self.response_key = response_key
         self.children = children
         self.prev = prev
@@ -26,7 +27,6 @@ class FlowStep:
         self.parent = parent
         self.label = label
         self.content = None
-
 
 
 class TripsStepNavigationRules:
@@ -52,11 +52,11 @@ class TripsStepNavigationRules:
         return bool(step.children)
 
 
-
-class TripsStepValidator:
+class FlowStepValidator:
     """
     Checks if step instance has key to retrieve text from DB and button name label.
     """
+
     @staticmethod
     def is_valid_step(step: FlowStep) -> bool:
         return bool(step.response_key and step.label)

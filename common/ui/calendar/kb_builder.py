@@ -1,17 +1,19 @@
 from datetime import date
+from typing import Any
+
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 from common.ui.calendar.locale_RU import MONTHS_RU, DAYS_RU
 
 
 class CalendarUIBuilder:
-    PREV_BTN = '⏪'
-    NEXT_BTN = '⏩'
-    RESET_BTN = '🔄  Сегодня'
+    PREV_BTN = "⏪"
+    NEXT_BTN = "⏩"
+    RESET_BTN = "🔄  Сегодня"
     TODAY_BTN = "🐈‍⬛"
-    TO_MAIN_BTN = '🏠  В меню'
+    TO_MAIN_BTN = "🏠  В меню"
 
-    def __init__(self, feature_name, year, month, days):
+    def __init__(self, feature_name: str, year: int, month: int, days: Any):
         self.feature = feature_name
         self.year = year
         self.month = month
@@ -25,15 +27,26 @@ class CalendarUIBuilder:
 
     def _make_header(self) -> list[InlineKeyboardButton]:
         header = [
-            InlineKeyboardButton(text=self.PREV_BTN, callback_data=f"{self.feature}_prev_{self.year}_{self.month}"),
-            InlineKeyboardButton(text=f"{MONTHS_RU[self.month]} {self.year}", callback_data="ignore"),
-            InlineKeyboardButton(text=self.NEXT_BTN, callback_data=f"{self.feature}_next_{self.year}_{self.month}"),
-            ]
+            InlineKeyboardButton(
+                text=self.PREV_BTN,
+                callback_data=f"{self.feature}_prev_{self.year}_{self.month}",
+            ),
+            InlineKeyboardButton(
+                text=f"{MONTHS_RU[self.month]} {self.year}", callback_data="ignore"
+            ),
+            InlineKeyboardButton(
+                text=self.NEXT_BTN,
+                callback_data=f"{self.feature}_next_{self.year}_{self.month}",
+            ),
+        ]
         return header
 
     @staticmethod
     def _make_weekdays() -> list[InlineKeyboardButton]:
-        weekdays_block = [InlineKeyboardButton(text=f"{DAYS_RU[day]}", callback_data="ignore") for day in range(1, 8)]
+        weekdays_block = [
+            InlineKeyboardButton(text=f"{DAYS_RU[day]}", callback_data="ignore")
+            for day in range(1, 8)
+        ]
         return weekdays_block
 
     def _make_days(self) -> list[list[InlineKeyboardButton]]:
@@ -41,19 +54,29 @@ class CalendarUIBuilder:
         for week in self.days:
             week_block = []
             for day in week:
-                week_block.append(InlineKeyboardButton(text=f'{self.TODAY_BTN if self._is_today(day) else day if day > 0 else " "}',
-                                                       callback_data=f'{self.feature}_day_{self.year}_{self.month}_{day}' if day > 0 else "ignore"))
+                week_block.append(
+                    InlineKeyboardButton(
+                        text=f'{self.TODAY_BTN if self._is_today(day) else day if day > 0 else " "}',
+                        callback_data=(
+                            f"{self.feature}_day_{self.year}_{self.month}_{day}"
+                            if day > 0
+                            else "ignore"
+                        ),
+                    )
+                )
             days_block.append(week_block)
         return days_block
 
-    def _make_footer(self):
+    def _make_footer(self) -> list[InlineKeyboardButton]:
         footer = [
-            InlineKeyboardButton(text=self.RESET_BTN, callback_data=f"{self.feature}_today_0_0"),
-            InlineKeyboardButton(text=self.TO_MAIN_BTN, callback_data="to_main")
-            ]
+            InlineKeyboardButton(
+                text=self.RESET_BTN, callback_data=f"{self.feature}_today_0_0"
+            ),
+            InlineKeyboardButton(text=self.TO_MAIN_BTN, callback_data="to_main"),
+        ]
         return footer
 
-    def build_calendar_keyboard(self):
+    def build_calendar_keyboard(self) -> InlineKeyboardMarkup:
         keyboard = []
         keyboard.append(self._make_header())
         keyboard.append(self._make_weekdays())

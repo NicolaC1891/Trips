@@ -5,7 +5,7 @@ from typing import Sequence, Any
 
 class RandomItemPicker:
 
-    def __init__(self, items: Sequence):
+    def __init__(self, items: Sequence) -> None:
         self.items = items
 
     def pick_by_seed_today(self) -> Any:

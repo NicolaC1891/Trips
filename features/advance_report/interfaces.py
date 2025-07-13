@@ -1,4 +1,7 @@
 from abc import ABC, abstractmethod
+from datetime import date
+
+from infrastructure.database.ORMmodels import ReportReminder
 
 
 class ReminderRepoInterface(ABC):
@@ -6,9 +9,11 @@ class ReminderRepoInterface(ABC):
         self.session = session
 
     @abstractmethod
-    async def create_record(self, reminder):
+    async def create_record(self, reminder: ReportReminder):
         pass
 
     @abstractmethod
-    async def record_exists(self, user_id, return_date, reminder_date, report_deadline) -> bool:
+    async def record_exists(
+        self, user_id: int, return_date: date, reminder_date: date, report_deadline: date
+    ) -> bool:
         pass

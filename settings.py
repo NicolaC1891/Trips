@@ -11,7 +11,10 @@ class Settings(BaseSettings):
     BOT_TOKEN: SecretStr
     database: Database
 
-    model_config = {"env_file": ".env", "env_nested_delimiter": "__"}  # if __ in .env, [0] is object, [1] is field
+    model_config = {
+        "env_file": ".env",
+        "env_nested_delimiter": "__",
+    }  # if __ in .env, [0] is object, [1] is field
 
 
 config = Settings()

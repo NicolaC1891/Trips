@@ -3,8 +3,8 @@ from aiogram import F, Router
 from aiogram.types import CallbackQuery
 
 from common.logger.logger import logger
-from common.repos.flow_repo import FlowRepo
-from common.ui.flow_menu_kb_builders import SimpleMenuUIBuilder
+from features.business_trips.flow_repo import FlowRepo
+from features.business_trips.flow_menu_kb_builders import SimpleMenuUIBuilder
 from features.office_cat.repo import CatWisdomRepo
 from features.office_cat.use_cases import GetCatWisdomUseCase
 from infrastructure.database.session import async_session_factory
@@ -31,4 +31,3 @@ async def handle_cat_wisdom(callback: CallbackQuery):
         sentry_sdk.capture_exception(e)
         await callback.message.answer("Произошла ошибка. Попробуйте позже.")
         return
-

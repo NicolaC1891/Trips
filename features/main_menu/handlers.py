@@ -3,11 +3,14 @@ from aiogram import Router, F
 from aiogram.filters import CommandStart, CommandObject, Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
-from common.ui.flow_menu_kb_builders import SimpleMenuUIBuilder
+from features.business_trips.flow_menu_kb_builders import SimpleMenuUIBuilder
 from domain.user_entity import User
-from features.main_menu.use_cases import ShowMainMenuUseCase, ShowSimpleMenuOptionUseCase
+from features.main_menu.use_cases import (
+    ShowMainMenuUseCase,
+    ShowSimpleMenuOptionUseCase,
+)
 from infrastructure.database.session import async_session_factory
-from common.repos.flow_repo import FlowRepo
+from features.business_trips.flow_repo import FlowRepo
 from common.logger.logger import logger
 from features.main_menu.ui import MainMenuUIBuilder
 
@@ -16,16 +19,20 @@ router = Router()
 
 @router.message(CommandStart())
 async def cmd_start(message: Message, command: CommandObject, state: FSMContext):
-    logger.info(f"User {message.from_user.username} used /start")    # add statistic info
+    logger.info(f"User {message.from_user.username} used /start")  # add statistic info
 
     if command.args == "go":
         logger.info(f"User {message.from_user.username} entered via QR code")
 
-    await state.clear()   # Make exception for cache!
+    await state.clear()  # Make exception for cache!
 
     try:
         async with async_session_factory() as session:
-            tg_user = User(id=message.from_user.id, username=message.from_user.username, full_name=message.from_user.full_name)
+            tg_user = User(
+                id=message.from_user.id,
+                username=message.from_user.username,
+                full_name=message.from_user.full_name,
+            )
             repo = FlowRepo(session)
             use_case = ShowMainMenuUseCase(tg_user, repo)
             reply = await use_case.execute()
@@ -40,7 +47,7 @@ async def cmd_start(message: Message, command: CommandObject, state: FSMContext)
 
 @router.message(Command("help"))
 async def cmd_help(message: Message):
-    response_key = 'help'
+    response_key = "help"
 
     try:
         async with async_session_factory() as session:
@@ -63,7 +70,9 @@ async def handle_help(callback: CallbackQuery):
     try:
         async with async_session_factory() as session:
             repo = FlowRepo(session)
-            use_case = ShowSimpleMenuOptionUseCase(repo=repo, response_key=callback.data)
+            use_case = ShowSimpleMenuOptionUseCase(
+                repo=repo, response_key=callback.data
+            )
             reply = await use_case.execute()
         keyboard = SimpleMenuUIBuilder().build_kb()
         await callback.message.edit_text(text=reply, reply_markup=keyboard)
@@ -81,7 +90,9 @@ async def handle_manual(callback: CallbackQuery):
     try:
         async with async_session_factory() as session:
             repo = FlowRepo(session)
-            use_case = ShowSimpleMenuOptionUseCase(repo=repo, response_key=callback.data)
+            use_case = ShowSimpleMenuOptionUseCase(
+                repo=repo, response_key=callback.data
+            )
             reply = await use_case.execute()
         keyboard = SimpleMenuUIBuilder().build_kb()
         await callback.message.edit_text(text=reply, reply_markup=keyboard)
@@ -93,15 +104,18 @@ async def handle_manual(callback: CallbackQuery):
         return
 
 
-@router.callback_query(F.data == 'to_main')
+@router.callback_query(F.data == "to_main")
 async def handle_to_main(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
     await state.clear()
 
     try:
         async with async_session_factory() as session:
-            tg_user = User(id=callback.from_user.id, username=callback.from_user.username,
-                           full_name=callback.from_user.full_name)
+            tg_user = User(
+                id=callback.from_user.id,
+                username=callback.from_user.username,
+                full_name=callback.from_user.full_name,
+            )
             repo = FlowRepo(session)
             use_case = ShowMainMenuUseCase(tg_user=tg_user, repo=repo)
             reply = await use_case.execute()

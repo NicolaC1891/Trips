@@ -1,7 +1,7 @@
 from sqlalchemy import select
 
 from infrastructure.database.ORMmodels import FlowResponse
-from common.interfaces.flow_repo_interface import FlowRepoInterface
+from features.business_trips.flow_repo_interface import FlowRepoInterface
 
 
 class FlowRepo(FlowRepoInterface):

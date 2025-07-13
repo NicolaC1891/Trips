@@ -1,19 +1,20 @@
-from features.business_trips.flows.flow_resolver import FlowResolver
-from common.logger.logger import logger
+from domain.flow_logic import FlowStepValidator, FlowStep
+from features.business_trips.flow_repo_interface import FlowRepoInterface
 
 
 class FetchFlowStepUseCase:
     """
     Gets a step by key, validates it, gets text from DB, sends result to presentation.
     """
-    def __init__(self, flow, step_key, validator, repo):
+
+    def __init__(self, flow: dict, step_key: str, validator: FlowStepValidator, repo: FlowRepoInterface):
         self.prefix = flow
         self.step_key = step_key
         self.validator = validator
         self.repo = repo
         self.flow = flow
 
-    async def execute(self):
+    async def execute(self) -> FlowStep:
 
         try:
             step = self.flow[self.step_key]

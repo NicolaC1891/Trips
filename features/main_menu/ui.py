@@ -1,4 +1,3 @@
-
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 from features.main_menu.structure.menu_structure import BUSINESS_ITEMS, HELP_ITEMS
@@ -10,7 +9,9 @@ class MainMenuUIBuilder:
         keyboard = []
 
         for item in BUSINESS_ITEMS:
-            keyboard.append([InlineKeyboardButton(text=item.label, callback_data=item.response_key)])
+            keyboard.append(
+                [InlineKeyboardButton(text=item.label, callback_data=item.response_key)]
+            )
 
         help_section = [
             InlineKeyboardButton(text=item.label, callback_data=item.response_key)
