@@ -10,3 +10,4 @@ holidays~=0.75
 APScheduler~=3.11.0
 pytest~=8.4.1
 workalendar~=17.0.0
+sentry-sdk
