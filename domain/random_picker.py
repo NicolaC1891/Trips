@@ -4,6 +4,9 @@ from typing import Sequence, Any
 
 
 class RandomItemPicker:
+    """
+    Just a randomizer
+    """
 
     def __init__(self, items: Sequence) -> None:
         self.items = items

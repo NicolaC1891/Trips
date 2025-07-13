@@ -1,3 +1,7 @@
+"""
+Logger with log level dependency on dev/prod
+"""
+
 from settings import config
 import logging
 import sys

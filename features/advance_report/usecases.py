@@ -60,8 +60,8 @@ class GetAdvanceReportDeadlineUseCase:
         reminder_date = cal.add_working_days(return_date, 14)
         report_deadline = cal.add_working_days(return_date, 15)
         message = (
-            f"Дата возвращения: <b>{return_date}</b>\n"
-            f"Дата сдачи отчета: <b>{report_deadline}</b>\n\n"
+            f"Дата возвращения: <b>{return_date.strftime('%m.%d.%Y')}</b>\n"
+            f"Дата сдачи отчета: <b>{report_deadline.strftime('%m.%d.%Y')}</b>\n\n"
             f"Создать напоминание за день до срока сдачи отчета?"
         )
 

@@ -1,3 +1,8 @@
+"""
+Builds inline keyboard calendar from a set of calendar days.
+Every button gets feature_day_year_month_date callback that enables date picking.
+"""
+
 from datetime import date
 from typing import Any
 

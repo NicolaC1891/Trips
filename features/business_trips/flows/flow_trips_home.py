@@ -20,7 +20,7 @@ FLOW_TRIPS_HOME = {
         prev=None,
         next_="home_2",
         parent=None,
-        label='1. С чего начать"',
+        label='1. С чего начать',
     ),
     "home_2": FlowStep(
         response_key="home_memo",

@@ -1,14 +1,6 @@
 class FlowStep:
     """
-    Represents a single step in the business trips instruction flow.
-
-    Attributes:
-        response_key (str): Key used to fetch the message content for this step.
-        children (tuple[str] | None): Tuple of keys representing child steps (sub-steps).
-        prev (str): Key of the previous step in the sequence, or None if there is none.
-        next_ (Optional[str]): Key of the next step in the sequence, or None if there is none.
-        parent (Optional[str]): Key of the parent step (higher-level step), or None if top-level.
-        label (str): Human-readable label/title of the step.
+    Represents a single step in the business flow.
     """
 
     def __init__(
@@ -29,10 +21,10 @@ class FlowStep:
         self.content = None
 
 
-class TripsStepNavigationRules:
+class FlowStepNavigationRules:
     """
     Checks for available navigation steps before building keyboard.
-    existing without fsm cache , redo later
+    Exists in the absence of cache-based navigation.
     """
 
     @staticmethod

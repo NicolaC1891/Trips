@@ -29,7 +29,7 @@ async def cmd_start(message: Message, command: CommandObject, state: FSMContext)
     try:
         async with async_session_factory() as session:
             tg_user = User(
-                id=message.from_user.id,
+                user_id=message.from_user.id,
                 username=message.from_user.username,
                 full_name=message.from_user.full_name,
             )
@@ -112,7 +112,7 @@ async def handle_to_main(callback: CallbackQuery, state: FSMContext):
     try:
         async with async_session_factory() as session:
             tg_user = User(
-                id=callback.from_user.id,
+                user_id=callback.from_user.id,
                 username=callback.from_user.username,
                 full_name=callback.from_user.full_name,
             )
