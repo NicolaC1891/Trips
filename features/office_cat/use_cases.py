@@ -1,4 +1,4 @@
-from domain.randomizer import Randomizer
+from domain.random_picker import RandomItemPicker
 
 
 class GetCatWisdomUseCase:
@@ -10,7 +10,7 @@ class GetCatWisdomUseCase:
 
     async def execute(self):
         all_ids = await self.wisdom_repo.read_all_ids()
-        random_id = Randomizer(all_ids).randomize_seed_today()
+        random_id = RandomItemPicker(all_ids).pick_by_seed_today()
         wisdom = await self.wisdom_repo.read_wisdom(random_id)
         message = await self.message_repo.get_response(self.response_key)
         wisdom_message = f"{message}\n{wisdom}"

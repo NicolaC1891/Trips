@@ -11,3 +11,10 @@ class ReminderTooLateError(Exception):
     Exception to be raised when the reminder date is today or on a certain date in the past.
     """
     pass
+
+
+class DuplicateReminderError(Exception):
+    """
+    Exception to be raised when the reminder already exists in the database
+    """
+    pass

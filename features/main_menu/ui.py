@@ -6,7 +6,7 @@ from features.main_menu.structure.menu_structure import BUSINESS_ITEMS, HELP_ITE
 
 class MainMenuUIBuilder:
     @staticmethod
-    def build_main_menu_keyboard() -> InlineKeyboardMarkup:
+    def build_kb() -> InlineKeyboardMarkup:
         keyboard = []
 
         for item in BUSINESS_ITEMS:

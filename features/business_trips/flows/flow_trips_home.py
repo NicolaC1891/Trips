@@ -1,5 +1,4 @@
-from domain.models import FlowStep
-
+from domain.flow_logic import FlowStep
 
 FLOW_TRIPS_HOME = {
 

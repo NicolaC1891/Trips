@@ -1,30 +1,50 @@
+import sentry_sdk
 from aiogram import Router
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery
+
+from common.logger.logger import logger
+from features.business_trips.flows.flow_resolver import FlowResolver
 from features.business_trips.usecases import FetchFlowStepUseCase
 from infrastructure.database.session import async_session_factory
-from domain.services_trips import TripsStepValidator
-from common.repos.instruction_repo import InstructionRepo
-from common.ui.builders import BusinessFlowStepUIBuilder
+from domain.flow_logic import TripsStepValidator
+from common.repos.flow_repo import FlowRepo
+from common.ui.flow_menu_kb_builders import FlowStepUIBuilder
 
 router = Router()
 
 
 @router.callback_query(lambda c: c.data.startswith(("home_", "abroad_")))
-async def handler_trips(callback_query: CallbackQuery):
-    await callback_query.answer()
-    prefix = callback_query.data.split("_", 1)[0]
-    step_key = callback_query.data
+async def handler_trips(callback: CallbackQuery):
+    await callback.answer()
 
-    async with async_session_factory() as session:
-        repo = InstructionRepo(session)
-        validator = TripsStepValidator()
-        use_case = FetchFlowStepUseCase(prefix, step_key, validator, repo)
+    prefix = callback.data.split("_", 1)[0]
+    step_key = callback.data
 
-        flow, step = await use_case.execute()
+    try:
+        async with async_session_factory() as session:
+            flow = FlowResolver()[prefix]
+            repo = FlowRepo(session)
+            validator = TripsStepValidator()
+            use_case = FetchFlowStepUseCase(flow=flow, step_key=step_key, validator=validator, repo=repo)
+            step = await use_case.execute()
+        reply = step.content
+        keyboard = FlowStepUIBuilder(flow, step).build_kb()
+        await callback.message.edit_text(text=reply, reply_markup=keyboard)
 
-        response = step.content
-        keyboard = BusinessFlowStepUIBuilder(flow, step).build_inline_keyboard()
+    except KeyError as e:
+        logger.exception("Error: no step in flow")
+        sentry_sdk.capture_exception(e)
+        await callback.message.answer("Ошибка! Напишите через «Идея!», что вы нажимали — и бот станет лучше!")
+        return
 
-        if isinstance(callback_query.message, Message):
-            await callback_query.message.answer(text=response, reply_markup=keyboard)
+    except ValueError as e:
+        logger.exception("Invalid flow step")
+        sentry_sdk.capture_exception(e)
+        await callback.message.answer("Ошибка! Напишите через «Идея!», что вы нажимали — и бот станет лучше!")
+        return
 
+    except Exception as e:
+        logger.exception("Error in trips handler")
+        sentry_sdk.capture_exception(e)
+        await callback.message.answer("Произошла ошибка. Попробуйте позже.")
+        return

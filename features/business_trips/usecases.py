@@ -6,27 +6,24 @@ class FetchFlowStepUseCase:
     """
     Gets a step by key, validates it, gets text from DB, sends result to presentation.
     """
-    def __init__(self, prefix, step_key, validator, repo):
-        self.prefix = prefix
+    def __init__(self, flow, step_key, validator, repo):
+        self.prefix = flow
         self.step_key = step_key
         self.validator = validator
         self.repo = repo
-        self.step_flow = FlowResolver()
+        self.flow = flow
 
     async def execute(self):
-        flow = self.step_flow[self.prefix]
 
         try:
-            step = flow[self.step_key]
-        except KeyError as e:
-            logger.error(f"Dict key missing: {e}")
-            raise ValueError('No step available')
+            step = self.flow[self.step_key]
+        except KeyError("Missing key in flow: {e}"):
+            raise
 
         if not self.validator.is_valid_step(step):
-            logger.error("Step is missing response_key or label")
-            raise ValueError("Step is not valid")
+            raise ValueError("Invalid flow step")
 
         response = await self.repo.get_response(step.response_key)
         step.content = response
 
-        return flow, step
+        return step

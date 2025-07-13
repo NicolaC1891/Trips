@@ -1,28 +1,25 @@
-"""
-Logging configuration for the bot.
-
-Defines and exports a reusable logger instance,
-which writes messages to standard output.
-"""
-
+from settings import config
 import logging
 import sys
 
 
 def create_logger():
-    """
-    Creates and configures a logger instance for the application.
-
-    :return: logging.Logger: configured logger with StreamHandler and formatted output
-    """
     logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
-    if not logger.handlers:
-        handler = logging.StreamHandler(stream=sys.stdout)
-        handler.setFormatter(
-            logging.Formatter(fmt="[%(asctime)s: %(levelname)s] %(message)s")
-        )
-        logger.addHandler(handler)
+
+    # avoid doubling
+    if logger.hasHandlers():
+        logger.handlers.clear()
+
+    env = config.ENV
+    log_level = logging.DEBUG if env == "dev" else logging.INFO
+    logger.setLevel(log_level)
+
+    handler = logging.StreamHandler(stream=sys.stdout)
+    formatter = logging.Formatter(fmt="[%(asctime)s: %(levelname)s] %(message)s")
+    handler.setFormatter(formatter)
+
+    logger.addHandler(handler)
+
     return logger
 
 

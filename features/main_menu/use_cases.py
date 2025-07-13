@@ -6,12 +6,12 @@ class ShowMainMenuUseCase:
         self.repo = repo
 
     async def execute(self):
-        response = await self.repo.get_response('to_main')
         name = self.tg_user.full_name or 'коллега'
+        response = await self.repo.get_response('to_main')
         return f"Здравствуйте, <b>{name}</b>!\n\n{response}"
 
 
-class ShowHelp:
+class ShowSimpleMenuOptionUseCase:
 
     def __init__(self, repo, response_key):
         self.repo = repo

@@ -1,7 +1,7 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
-class BusinessFlowStepUIBuilder:
+class FlowStepUIBuilder:
 
     BTN_PREV = "⬅  Назад"
     BTN_NEXT = "➡  Дальше"
@@ -12,11 +12,9 @@ class BusinessFlowStepUIBuilder:
         self.flow = flow
         self.step = step
 
-    def build_inline_keyboard(self) -> InlineKeyboardMarkup:
+    def build_kb(self) -> InlineKeyboardMarkup:
 
         keyboard = []
-
-        # build child tree
 
         if self.step.children:
             for child in self.step.children:
@@ -40,11 +38,10 @@ class BusinessFlowStepUIBuilder:
         return markup
 
 
-
 class SimpleMenuUIBuilder:
     BTN_MENU = '🏠  В меню'
 
-    def build_to_main_keyboard(self) -> InlineKeyboardMarkup:
+    def build_kb(self) -> InlineKeyboardMarkup:
         keyboard = [[InlineKeyboardButton(text=self.BTN_MENU, callback_data='to_main')]]
         markup = InlineKeyboardMarkup(inline_keyboard=keyboard)
         return markup

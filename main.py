@@ -1,22 +1,27 @@
 import asyncio
-import logging
-
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.types import BotCommand
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from common.logger.logger import logger
-from infrastructure.telegram.routers import ALL_ROUTERS
+from infrastructure.telegram.router_hub import ALL_ROUTERS
 from infrastructure.scheduler.adv_report_jobs import (delete_outdated_reminders,
                                                       send_report_reminder)
 from settings import config
+import sentry_sdk
 
-
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO,
+sentry_sdk.init(
+    dsn="https://e1d4252cb6720e71a6804c69a9d5f774@o4509660372533248.ingest.de.sentry.io/4509660384854096"
 )
+
+
+async def startup():
+    logger.info("Bot launched...")
+
+
+async def shutdown():
+    logger.info("Bot terminated...")
 
 
 async def main():
@@ -55,14 +60,6 @@ async def main():
         scheduler.start()
         await bot.delete_webhook(drop_pending_updates=True)
         await dp.start_polling(bot)
-
-
-async def startup():
-    logger.info("Bot launched...")
-
-
-async def shutdown():
-    logger.info("Bot terminated...")
 
 
 if __name__ == "__main__":

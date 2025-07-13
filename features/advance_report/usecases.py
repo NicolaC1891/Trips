@@ -1,11 +1,10 @@
 from datetime import date
-
-from holidays import country_holidays
-
 from common.logger.logger import logger
-from domain.calendar_logic import CalendarCalculator
-from domain.days_calculator import DaysCalculator
-from features.advance_report.exceptions import ReportDeadlinePassedError, ReminderTooLateError
+from features.advance_report.exceptions import DuplicateReminderError
+from workalendar.europe import Belarus
+import calendar
+
+from infrastructure.database.ORMmodels import ReportReminder
 
 
 class AskTripArrivalDateUseCase:
@@ -40,7 +39,7 @@ class AskTripArrivalDateUseCase:
                 logger.error('ShowCalendar error: unknown prefix')
                 raise ValueError('Unknown month prefix')
 
-        days = CalendarCalculator().get_calendar_by_month(self.year, self.month)
+        days = calendar.Calendar().monthdayscalendar(self.year, self.month)
         response = await self.repo.get_response('advance_ask_data')
 
         return response, self.year, self.month, days
@@ -54,12 +53,10 @@ class GetAdvanceReportDeadlineUseCase:
         self.day = int(day_str)
 
     async def execute(self):
+        cal = Belarus()
         return_date = date(self.year, self.month, self.day)
-        holidays = country_holidays("BY")
-        reminder_date, report_deadline = DaysCalculator(holidays).add_business_days_with_checkpoint(
-            start=return_date, count=15, checkpoint=14
-        )
-
+        reminder_date = cal.add_working_days(return_date, 14)
+        report_deadline = cal.add_working_days(return_date, 15)
         message = (f"Дата возвращения: <b>{return_date}</b>\n"
                    f"Дата сдачи отчета: <b>{report_deadline}</b>\n\n"
                    f"Создать напоминание за день до срока сдачи отчета?")
@@ -69,15 +66,20 @@ class GetAdvanceReportDeadlineUseCase:
 
 class CreateAdvanceReminder:
 
-    def __init__(self, user_id, return_date, reminder_date, report_deadline):
+    def __init__(self, repo, user_id, return_date, reminder_date, report_deadline):
+        self.repo = repo
         self.user_id = user_id
         self.return_date = return_date
         self.reminder_date = reminder_date
         self.report_deadline = report_deadline
+
     async def execute(self):
-        if self.report_deadline < date.today():
-            raise ReportDeadlinePassedError()
-        elif self.reminder_date <= date.today():
-            raise ReminderTooLateError()
-        else:
-            return "Напоминание создано!"
+        if await self.repo.record_exists(self.user_id, self.return_date, self.reminder_date, self.report_deadline):
+            raise DuplicateReminderError("Reminder already exists")
+        reminder = ReportReminder(
+            user_id=self.user_id,
+            return_date=self.return_date,
+            reminder_date=self.reminder_date,
+            report_deadline=self.report_deadline,
+        )
+        await self.repo.create_record(reminder)

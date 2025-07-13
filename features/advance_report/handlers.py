@@ -1,5 +1,6 @@
 from datetime import date
 
+import sentry_sdk
 from aiogram import Router
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.context import FSMContext
@@ -7,15 +8,16 @@ from aiogram.types import CallbackQuery
 
 from common.fsm.fsm import FSMCache
 from common.logger.logger import logger
-from domain.models import User
-from features.advance_report.exceptions import ReportDeadlinePassedError, ReminderTooLateError
+from domain.user_entity import User
+from features.advance_report.exceptions import ReportDeadlinePassedError, ReminderTooLateError, DuplicateReminderError
+from features.advance_report.repo import ReminderRepo
 from features.advance_report.ui import AdvanceReminderUIBuilder
 from features.advance_report.usecases import AskTripArrivalDateUseCase, GetAdvanceReportDeadlineUseCase, CreateAdvanceReminder
 from features.main_menu.ui import MainMenuUIBuilder
 from features.main_menu.use_cases import ShowMainMenuUseCase
 from infrastructure.database.session import async_session_factory
-from common.repos.instruction_repo import InstructionRepo
-from common.ui.calendar.builder import CalendarUIBuilder
+from common.repos.flow_repo import FlowRepo
+from common.ui.calendar.kb_builder import CalendarUIBuilder
 
 router = Router()
 
@@ -24,65 +26,112 @@ router = Router()
 async def handle_enter_advance_report(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
     await FSMCache(state).delete("advance_report")
-    # parsing callback
+
     feature_name, prefix, year_str, month_str = callback.data.split("_")
 
-    # getting done
-    async with async_session_factory() as session:
-        repo = InstructionRepo(session)
-        use_case = AskTripArrivalDateUseCase(repo, prefix, year_str, month_str)  # may add DTO later
-        message, year, month, days = await use_case.execute()
+    try:
+        async with async_session_factory() as session:
+            repo = FlowRepo(session)
+            use_case = AskTripArrivalDateUseCase(repo, prefix, year_str, month_str)  # add DTO later
+            reply, year, month, days = await use_case.execute()
+        keyboard = CalendarUIBuilder(feature_name, year, month, days).build_calendar_keyboard()
 
-    keyboard = CalendarUIBuilder(feature_name, year, month, days).build_calendar_keyboard()
-    try:    # Bypassing TG behavior with the same content and markup
-        await callback.message.edit_text(text=message, reply_markup=keyboard)
+    except Exception as e:
+        logger.exception("Error in enter advance report handler")
+        sentry_sdk.capture_exception(e)
+        await callback.message.answer("Произошла ошибка. Попробуйте позже.")
+        return
+
+    # Bypassing TG behavior with the same content and markup
+    try:
+        await callback.message.edit_text(text=reply, reply_markup=keyboard)
     except TelegramBadRequest as e:
         if "message is not modified" not in str(e):
-            raise
+            sentry_sdk.capture_exception(e)
+            await callback.message.answer("Произошла ошибка Telegram. Попробуйте позже.")
+            return
 
 
 @router.callback_query(lambda c: c.data.startswith("advance_day"))
 async def handle_choose_trip_return_date(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
-    await FSMCache(state).delete("advance_report")
-    # parsing callback
+
     _, _, year_str, month_str, day_str = callback.data.split("_")
 
-    # getting done
-    use_case = GetAdvanceReportDeadlineUseCase(year_str, month_str, day_str)  # may add DTO later
-    return_date, reminder_date, report_deadline, message = await use_case.execute()
-    await FSMCache(state).update("advance_report", return_date=return_date, reminder_date=reminder_date, report_deadline=report_deadline)
+    try:
+        use_case = GetAdvanceReportDeadlineUseCase(year_str, month_str, day_str)  # may add DTO later
+        return_date, reminder_date, report_deadline, reply = await use_case.execute()
+        await FSMCache(state).update(
+            feature_name="advance_report",
+            return_date=return_date,
+            reminder_date=reminder_date,
+            report_deadline=report_deadline)
+        keyboard = AdvanceReminderUIBuilder().build_kb()
+        await callback.message.edit_text(text=reply, reply_markup=keyboard)
 
-    keyboard = AdvanceReminderUIBuilder().build_kb()
-    await callback.message.edit_text(text=message, reply_markup=keyboard)
+    except Exception as e:
+        logger.exception("Error in choose trip return date handler")
+        sentry_sdk.capture_exception(e)
+        await callback.message.answer("Произошла ошибка. Выберите дату еще раз.")
+        await FSMCache(state).delete("advance_report")
+        return
 
 
 @router.callback_query(lambda c: c.data == "adv_create_reminder")
 async def handle_create_report_reminder(callback: CallbackQuery, state: FSMContext):
+
+    # if user has created a reminder and presses Create again (but cache is empty)
     all_data = await FSMCache(state).read("advance_report")
-    user_id = callback.from_user.id
+    if not all_data:
+        await callback.answer(text="Данные о дате не найдены. Пожалуйста, выберите дату заново.",show_alert=True)
+        return
+
     return_date: date | None = all_data.get("return_date")
     reminder_date: date | None = all_data.get("reminder_date")
     report_deadline: date | None = all_data.get("report_deadline")
-    keyboard = MainMenuUIBuilder().build_main_menu_keyboard()
+
+    # usual scenario, validating cache data
     if not all([return_date, reminder_date, report_deadline]):
-        logger.error("Creating report reminder: missing cached data")
+        e = Exception("Error: missing cache data")
+        logger.error(f"{e}")
+        sentry_sdk.capture_exception(e)
         await callback.answer(text="Произошла ошибка. Выберите дату еще раз.", show_alert=True)
+        await FSMCache(state).delete("advance_report")
         return
 
-    use_case = CreateAdvanceReminder(user_id, return_date, reminder_date, report_deadline)
-    try:
-        message = await use_case.execute()
-        await callback.answer(message)
-        async with async_session_factory() as session:
-            tg_user = User(id=callback.from_user.id, username=callback.from_user.username,
-                           full_name=callback.from_user.full_name)
-            repo = InstructionRepo(session)
-            use_case = ShowMainMenuUseCase(tg_user, repo)
-            message = await use_case.execute()
-            await FSMCache(state).delete("advance_report")
-            await callback.message.edit_text(text=message, reply_markup=keyboard)
-    except ReportDeadlinePassedError:
+    today = date.today()
+
+    if report_deadline < today:
         await callback.answer("❌ Срок сдачи авансового отчета уже прошёл!", show_alert=True)
-    except ReminderTooLateError:
+        return
+
+    if reminder_date == today:
         await callback.answer("⏰ Напоминание уже не актуально — пора сдавать отчет!", show_alert=True)
+        return
+
+    try:
+        async with async_session_factory() as session:
+            repo = ReminderRepo(session)
+            use_case = CreateAdvanceReminder(
+                repo=repo,
+                user_id=callback.from_user.id,
+                return_date=return_date,
+                reminder_date=reminder_date,
+                report_deadline=report_deadline
+            )
+            await use_case.execute()
+
+    except DuplicateReminderError as e:
+        logger.exception(f"{e}")
+        sentry_sdk.capture_exception(e)
+        await callback.answer("Такое напоминание уже существует", show_alert=True)
+        return
+
+    except Exception as e:
+        logger.exception("Error creating advance report reminder")
+        sentry_sdk.capture_exception(e)
+        await callback.answer("Ошибка при создании напоминания", show_alert=True)
+        return
+
+    await FSMCache(state).delete("advance_report")
+    await callback.answer("Напоминание создано!")

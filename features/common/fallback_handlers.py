@@ -5,11 +5,13 @@ router = Router()
 
 
 @router.callback_query(F.data == 'ignore')
-async def ignore_callback(callback_query: CallbackQuery):
-    await callback_query.answer()
+async def ignore_callback(callback: CallbackQuery):
+    await callback.answer()
+    return
 
 
 @router.callback_query()
-async def unknown_callback(callback_query: CallbackQuery):
-    await callback_query.answer("Неизвестная команда или кнопка.", show_alert=True)
+async def unknown_callback(callback: CallbackQuery):
+    await callback.answer(f'Неизвестная команда или кнопка. Напишите через "Идея!" - и бот станет лучше!', show_alert=True)
+    return
 

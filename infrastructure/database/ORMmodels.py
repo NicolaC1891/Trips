@@ -9,9 +9,9 @@ Includes the following table mappings:
 Built using SQLAlchemy with async support. Models inherit from (DeclarativeBase + AsyncAttrs).
 """
 
-from datetime import datetime
+from datetime import datetime, date
 
-from sqlalchemy import DateTime, Integer
+from sqlalchemy import DateTime, Integer, Date
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -50,10 +50,9 @@ class ReportReminder(Base):
     __tablename__ = "rep_reminder"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     user_id: Mapped[int]
-    return_date: Mapped[datetime] = mapped_column(DateTime)
-    reminder_date: Mapped[datetime] = mapped_column(DateTime)
-    report_deadline: Mapped[datetime] = mapped_column(DateTime)
-
+    return_date: Mapped[date] = mapped_column(Date)
+    reminder_date: Mapped[date] = mapped_column(Date)
+    report_deadline: Mapped[date] = mapped_column(Date)
 
 class CatWisdom(Base):
     """

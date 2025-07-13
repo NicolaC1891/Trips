@@ -10,8 +10,8 @@ class CatWisdomRepo(CatWisdomRepoInterface):
         self.session = session
 
     async def read_wisdom(self, wisdom_id: str) -> str:
-        query = select(CatWisdom).where(CatWisdom.id == wisdom_id)
-        result = await self.session.execute(query)
+        statement = select(CatWisdom).where(CatWisdom.id == wisdom_id)
+        result = await self.session.execute(statement)
         wisdom = result.scalar_one_or_none()
         return wisdom.phrase
 
