@@ -4,7 +4,7 @@ from aiogram.types import CallbackQuery
 
 from common.logger.logger import logger
 from features.business_trips.flow_repo import FlowRepo
-from features.business_trips.flow_menu_kb_builders import SimpleMenuUIBuilder
+from features.main_menu.ui import SimpleMenuUIBuilder
 from features.office_cat.repo import CatWisdomRepo
 from features.office_cat.use_cases import GetCatWisdomUseCase
 from infrastructure.database.session import async_session_factory

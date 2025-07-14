@@ -21,3 +21,13 @@ class MainMenuUIBuilder:
 
         markup = InlineKeyboardMarkup(inline_keyboard=keyboard)
         return markup
+
+
+
+class SimpleMenuUIBuilder:
+    BTN_MENU = "🏠  В меню"
+
+    def build_kb(self) -> InlineKeyboardMarkup:
+        keyboard = [[InlineKeyboardButton(text=self.BTN_MENU, callback_data="to_main")]]
+        markup = InlineKeyboardMarkup(inline_keyboard=keyboard)
+        return markup

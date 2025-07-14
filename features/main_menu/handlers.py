@@ -3,7 +3,6 @@ from aiogram import Router, F
 from aiogram.filters import CommandStart, CommandObject, Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
-from features.business_trips.flow_menu_kb_builders import SimpleMenuUIBuilder
 from domain.user_entity import User
 from features.main_menu.use_cases import (
     ShowMainMenuUseCase,
@@ -12,7 +11,7 @@ from features.main_menu.use_cases import (
 from infrastructure.database.session import async_session_factory
 from features.business_trips.flow_repo import FlowRepo
 from common.logger.logger import logger
-from features.main_menu.ui import MainMenuUIBuilder
+from features.main_menu.ui import MainMenuUIBuilder, SimpleMenuUIBuilder
 
 router = Router()
 

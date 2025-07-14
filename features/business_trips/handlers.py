@@ -8,7 +8,7 @@ from features.business_trips.usecases import FetchFlowStepUseCase
 from infrastructure.database.session import async_session_factory
 from domain.flow_logic import FlowStepValidator
 from features.business_trips.flow_repo import FlowRepo
-from features.business_trips.flow_menu_kb_builders import FlowStepUIBuilder
+from features.business_trips.flow_kb_builder import FlowStepUIBuilder
 
 router = Router()
 
