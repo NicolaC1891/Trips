@@ -20,7 +20,7 @@ FLOW_TRIPS_HOME = {
         prev=None,
         next_="home_2",
         parent=None,
-        label='1. С чего начать',
+        label='С чего начать',
     ),
     "home_2": FlowStep(
         response_key="home_memo",
@@ -32,17 +32,63 @@ FLOW_TRIPS_HOME = {
         ),
         prev="home_1",
         next_="home_21",
-        parent=None,
-        label="2. Оформление заявки",
+        parent="home_0",
+        label="Оформление заявки",
     ),
     "home_21": FlowStep(
         response_key="home_memo_fill",
-        children=None,
-        prev="home_1",
+        children=("home_211", "home_212", "home_213", "home_214", "home_215", ),
+        prev="home_2",
         next_="home_22",
         parent="home_2",
-        label="2.1. Карточка в модуле",
+        label="Карточка в модуле",
     ),
+
+    "home_211": FlowStep(
+        response_key="home_memo_fill_name",
+        children=None,
+        prev=None,
+        next_=None,
+        parent="home_21",
+        label="Информация о сотруднике",
+    ),
+
+    "home_212": FlowStep(
+        response_key="home_memo_fill_trip",
+        children=None,
+        prev=None,
+        next_=None,
+        parent="home_21",
+        label="Информация о командировке",
+    ),
+
+    "home_213": FlowStep(
+        response_key="home_memo_fill_route",
+        children=None,
+        prev=None,
+        next_=None,
+        parent="home_21",
+        label="Маршрут",
+    ),
+
+    "home_214": FlowStep(
+        response_key="home_memo_fill_ticket",
+        children=None,
+        prev=None,
+        next_=None,
+        parent="home_21",
+        label="Транспорт и билеты",
+    ),
+
+    "home_215": FlowStep(
+        response_key="home_memo_fill_hotel",
+        children=None,
+        prev=None,
+        next_=None,
+        parent="home_21",
+        label="Гостиницы",
+    ),
+
     "home_22": FlowStep(
         response_key="home_memo_upload",
         children=None,
