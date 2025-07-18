@@ -66,3 +66,4 @@ class CatWisdom(Base):
     __tablename__ = "cat_phrase"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     phrase: Mapped[str]
+

@@ -95,7 +95,7 @@ FLOW_TRIPS_HOME = {
         prev="home_21",
         next_="home_23",
         parent="home_2",
-        label='2.2. Выгрузка в СЭД "Канцлер"',
+        label='Выгрузка в СЭД',
     ),
     "home_23": FlowStep(
         response_key="home_memo_final",
@@ -103,7 +103,7 @@ FLOW_TRIPS_HOME = {
         prev="home_22",
         next_="home_24",
         parent="home_2",
-        label='2.3. Дополнение в СЭД "Канцлер"',
+        label='Дополнение в СЭД',
     ),
     "home_24": FlowStep(
         response_key="home_memo_approve",
@@ -111,7 +111,7 @@ FLOW_TRIPS_HOME = {
         prev="home_23",
         next_="home_3",
         parent="home_2",
-        label='2.4. Согласование в СЭД "Канцлер"',
+        label='Маршрут согласования',
     ),
     "home_3": FlowStep(
         response_key="home_order",
@@ -119,7 +119,7 @@ FLOW_TRIPS_HOME = {
         prev="home_24",
         next_="home_4",
         parent=None,
-        label="3. Оформление приказа",
+        label="Оформление приказа",
     ),
     "home_4": FlowStep(
         response_key="home_report",
@@ -127,6 +127,6 @@ FLOW_TRIPS_HOME = {
         prev="home_3",
         next_=None,
         parent=None,
-        label="4. Авансовый отчет",
+        label="Авансовый отчет",
     ),
 }
