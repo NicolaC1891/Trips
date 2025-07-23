@@ -5,8 +5,6 @@ from infrastructure.database.ORMmodels import ReportReminder
 
 
 class ReminderRepoInterface(ABC):
-    def __init__(self, session):
-        self.session = session
 
     @abstractmethod
     async def create_record(self, reminder: ReportReminder):
@@ -16,4 +14,12 @@ class ReminderRepoInterface(ABC):
     async def record_exists(
         self, user_id: int, return_date: date, reminder_date: date, report_deadline: date
     ) -> bool:
+        pass
+
+    @abstractmethod
+    async def get_today_reminders(self):
+        pass
+
+    @abstractmethod
+    async def delete_record(self, user_id, return_date):
         pass

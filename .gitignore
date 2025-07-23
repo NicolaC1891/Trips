@@ -129,3 +129,5 @@ deploy_server
 deploy_server.txt
 
 real.env
+
+infrastructure/chunk_reader/

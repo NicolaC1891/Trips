@@ -1,4 +1,7 @@
-from datetime import date
+from datetime import date, datetime
+
+from sqlalchemy import func
+
 from common.logger.logger import logger
 from features.advance_report.exceptions import DuplicateReminderError
 from workalendar.europe import Belarus
@@ -57,12 +60,12 @@ class GetAdvanceReportDeadlineUseCase:
     async def execute(self):
         cal = Belarus()
         return_date = date(self.year, self.month, self.day)
-        reminder_date = cal.add_working_days(return_date, 14)
+        reminder_date = cal.add_working_days(return_date, 10)
         report_deadline = cal.add_working_days(return_date, 15)
         message = (
             f"Дата возвращения: <b>{return_date.strftime('%d.%m.%Y')}</b>\n"
             f"Дата сдачи отчета: <b>{report_deadline.strftime('%d.%m.%Y')}</b>\n\n"
-            f"Создать напоминание за день до срока сдачи отчета?"
+            f"Я начну напоминать за 5 дней до крайнего срока сдачи отчета. Вы хотите <b>создать напоминание</b>?"
         )
 
         return return_date, reminder_date, report_deadline, message
@@ -83,11 +86,12 @@ class CreateAdvanceReminder:
         self.reminder_date = reminder_date
         self.report_deadline = report_deadline
 
-    async def execute(self):
+    async def execute(self) -> str:
         if await self.repo.record_exists(
             self.user_id, self.return_date, self.reminder_date, self.report_deadline
         ):
             raise DuplicateReminderError("Reminder already exists")
+
         reminder = ReportReminder(
             user_id=self.user_id,
             return_date=self.return_date,
@@ -95,3 +99,37 @@ class CreateAdvanceReminder:
             report_deadline=self.report_deadline,
         )
         await self.repo.create_record(reminder)
+
+        cal = Belarus()
+        days_left = cal.get_working_days_delta(date.today(), self.report_deadline)
+        message = (f"<b>Напоминание создано!</b>\n\n"
+                   f"Дата возвращения: <b>{self.return_date.strftime('%d.%m.%Y')}</b>\n"
+                   f"Рабочих дней до сдачи отчета: <b>{days_left}</b>"
+                   )
+
+        return message
+
+
+class ReportReminderUseCase:
+
+    def __init__(self, repo_reminder, repo_message):
+        self.repo_reminder = repo_reminder
+        self.repo_message = repo_message
+
+    async def execute(self):
+        user_data = await self.repo_reminder.get_today_reminders()
+        response = await self.repo_message.get_response("advance_notify")
+        return user_data, response
+
+
+class DeleteReminderUseCase:
+
+    def __init__(self, repo, user_id, return_date):
+        self.repo = repo
+        self.user_id = user_id
+        self.return_date = return_date
+
+    async def execute(self):
+
+        await self.repo.delete_record(self.user_id, self.return_date)
+

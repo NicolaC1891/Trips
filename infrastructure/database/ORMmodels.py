@@ -11,7 +11,7 @@ Built using SQLAlchemy with async support. Models inherit from (DeclarativeBase 
 
 from datetime import date
 
-from sqlalchemy import Integer, Date
+from sqlalchemy import Integer, Date, Text
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -67,3 +67,12 @@ class CatWisdom(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     phrase: Mapped[str]
 
+
+class AIChunk(Base):
+    __tablename__ = 'chunks'
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    chunk_text: Mapped[str] = mapped_column(Text)
+    category: Mapped[str] = mapped_column(Text)  # общая категория по сущностям
+    topic: Mapped[str] = mapped_column(Text, nullable=True)  # действия с сущностями
+    flow_item: Mapped[str] = mapped_column(Text, nullable=True)   # пункт флоу для референса

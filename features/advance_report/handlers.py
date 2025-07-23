@@ -10,11 +10,11 @@ from common.fsm.fsm import FSMCache
 from common.logger.logger import logger
 from features.advance_report.exceptions import DuplicateReminderError
 from features.advance_report.repo import ReminderRepo
-from features.advance_report.ui import AdvanceReminderUIBuilder
+from features.advance_report.ui import AdvanceReminderCreateUI, AdvanceReminderExitUI
 from features.advance_report.usecases import (
     AskTripArrivalDateUseCase,
     GetAdvanceReportDeadlineUseCase,
-    CreateAdvanceReminder,
+    CreateAdvanceReminder, DeleteReminderUseCase,
 )
 
 from infrastructure.database.session import async_session_factory
@@ -79,7 +79,7 @@ async def handle_choose_trip_return_date(callback: CallbackQuery, state: FSMCont
             reminder_date=reminder_date,
             report_deadline=report_deadline,
         )
-        keyboard = AdvanceReminderUIBuilder().build_kb()
+        keyboard = AdvanceReminderCreateUI().build_kb()
         await callback.message.edit_text(text=reply, reply_markup=keyboard)
 
     except Exception as e:
@@ -93,7 +93,6 @@ async def handle_choose_trip_return_date(callback: CallbackQuery, state: FSMCont
 @router.callback_query(lambda c: c.data == "adv_create_reminder")
 async def handle_create_report_reminder(callback: CallbackQuery, state: FSMContext):
 
-    # if user has created a reminder and presses Create again (but cache is empty)
     all_data = await FSMCache(state).read("advance_report")
     if not all_data:
         await callback.answer(
@@ -106,17 +105,6 @@ async def handle_create_report_reminder(callback: CallbackQuery, state: FSMConte
     reminder_date: date | None = all_data.get("reminder_date")
     report_deadline: date | None = all_data.get("report_deadline")
 
-    # usual scenario, validating cache data
-    if not all([return_date, reminder_date, report_deadline]):
-        e = Exception("Error: missing cache data")
-        logger.error(f"{e}")
-        sentry_sdk.capture_exception(e)
-        await callback.answer(
-            text="Произошла ошибка. Выберите дату еще раз.", show_alert=True
-        )
-        await FSMCache(state).delete("advance_report")
-        return
-
     today = date.today()
 
     if report_deadline < today:
@@ -125,7 +113,7 @@ async def handle_create_report_reminder(callback: CallbackQuery, state: FSMConte
         )
         return
 
-    if reminder_date == today:
+    if report_deadline == today:
         await callback.answer(
             "⏰ Напоминание уже не актуально — пора сдавать отчет!", show_alert=True
         )
@@ -141,11 +129,12 @@ async def handle_create_report_reminder(callback: CallbackQuery, state: FSMConte
                 reminder_date=reminder_date,
                 report_deadline=report_deadline,
             )
-            await use_case.execute()
+            reply = await use_case.execute()
+            keyboard = AdvanceReminderExitUI.build_kb()
+            await callback.message.edit_text(text=reply, reply_markup=keyboard)
 
     except DuplicateReminderError as e:
         logger.exception(f"{e}")
-        sentry_sdk.capture_exception(e)
         await callback.answer("Такое напоминание уже существует", show_alert=True)
         return
 
@@ -156,4 +145,16 @@ async def handle_create_report_reminder(callback: CallbackQuery, state: FSMConte
         return
 
     await FSMCache(state).delete("advance_report")
-    await callback.answer("Напоминание создано!")
+
+
+@router.callback_query(lambda c: c.data.startswith("advance_del_"))
+async def handle_delete_report_reminder(callback: CallbackQuery):
+    required_date = callback.data.split("_", 2)[2]
+    year, month, day = [int(num) for num in required_date.split("_")]
+    user_id = callback.from_user.id
+    return_date = date(year, month, day)
+    async with async_session_factory() as session:
+        repo = ReminderRepo(session)
+        use_case = DeleteReminderUseCase(repo, user_id, return_date)
+        await use_case.execute()
+        await callback.answer(text="Напоминание больше не активно")

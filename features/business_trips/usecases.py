@@ -18,7 +18,7 @@ class FetchFlowStepUseCase:
 
         try:
             step = self.flow[self.step_key]
-        except KeyError("Missing key in flow: {e}"):
+        except KeyError:
             raise
 
         if not self.validator.is_valid_step(step):
