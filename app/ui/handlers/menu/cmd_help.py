@@ -10,7 +10,7 @@ from app.ui.keyboards.menu.kb_builders import SimpleMenuUIBuilder
 async def handle_cmd_help(message: Message):
     async with async_session_factory() as session:
         repo = MenuItemRepo(session)
-        input_dto = ShowMenuItemRequestDTO(response_key=message.text)
+        input_dto = ShowMenuItemRequestDTO(response_key='help')
         use_case = ShowMenuItemUseCase(repo, input_dto)
         output_dto = await use_case()
 

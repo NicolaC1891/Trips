@@ -131,3 +131,7 @@ deploy_server.txt
 real.env
 
 x_future_chunks/chunk_reader/
+
+Dockerfile
+
+.dockerignore

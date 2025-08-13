@@ -6,7 +6,7 @@ class MenuItem:
 
 BUSINESS_ITEMS = [
     MenuItem(response_key="home_0", label="🇧🇾  ПО БЕЛАРУСИ  🇧🇾"),
-#    MenuItem(response_key="abroad_0", label="🌎  ЗА ГРАНИЦУ  🌎"),
+    MenuItem(response_key="abroad_0", label="🌎  ЗА ГРАНИЦУ  🌎"),
     MenuItem(response_key="advance_today_0_0", label="🔥  Авансовый отчет"),
     MenuItem(response_key="manual", label="ℹ️  Как пользоваться ботом"),
 ]
