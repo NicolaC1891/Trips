@@ -1,7 +1,5 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from app.application.entities.flow_step_entity import FlowStep
-
 
 class FlowStepUIBuilder:
 
@@ -10,8 +8,7 @@ class FlowStepUIBuilder:
     BTN_UP = "⬆  К разделу"
     BTN_MENU = "🏠  В меню"
 
-    def __init__(self, child_labels: list | None, step: FlowStep):
-        self.child_labels = child_labels
+    def __init__(self, step):
         self.step = step
 
     def build_kb(self) -> InlineKeyboardMarkup:
@@ -19,15 +16,14 @@ class FlowStepUIBuilder:
         keyboard = []
 
         if self.step.children:
-            for child, label in zip(self.step.children, self.child_labels):
+            for child in self.step.children:
                 keyboard.append(
                     [
                         InlineKeyboardButton(
-                            text=label, callback_data=child
+                            text=child.get("label"), callback_data=child.get("callback")
                         )
                     ]
                 )
-
 
         sideways_block = []
         if self.step.prev:

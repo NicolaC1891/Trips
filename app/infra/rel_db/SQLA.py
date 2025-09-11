@@ -29,25 +29,61 @@ class MenuItem(Base):
     - response: text shown to the user as a reply
     """
 
-    __tablename__ = "menu_msg"
+    __tablename__ = "menu"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     key: Mapped[str]
     response: Mapped[str]
+    children: Mapped[str]
+    prev: Mapped[str]
+    next_: Mapped[str]
+    parent: Mapped[str]
+    label: Mapped[str]
 
 
-class FlowStepContent(Base):
-    """
-    Stores predefined response texts for menu commands or keywords.
-
-    Fields:
-    - key: string identifier (command, keyword, or message trigger)
-    - response: text shown to the user as a reply
-    """
-
-    __tablename__ = "flow_msg"
+class HomeFlowStep(Base):
+    __tablename__ = "home"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     key: Mapped[str]
     response: Mapped[str]
+    children: Mapped[str]
+    prev: Mapped[str]
+    next_: Mapped[str]
+    parent: Mapped[str]
+    label: Mapped[str]
+
+class AbroadFlowStep(Base):
+    __tablename__ = "abroad"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    key: Mapped[str]
+    response: Mapped[str]
+    children: Mapped[str]
+    prev: Mapped[str]
+    next_: Mapped[str]
+    parent: Mapped[str]
+    label: Mapped[str]
+
+class RepexpFlowStep(Base):
+    __tablename__ = "repexp"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    key: Mapped[str]
+    response: Mapped[str]
+    children: Mapped[str]
+    prev: Mapped[str]
+    next_: Mapped[str]
+    parent: Mapped[str]
+    label: Mapped[str]
+
+
+class AdvanceItem(Base):
+    __tablename__ = "advance"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    key: Mapped[str]
+    response: Mapped[str]
+    children: Mapped[str]
+    prev: Mapped[str]
+    next_: Mapped[str]
+    parent: Mapped[str]
+    label: Mapped[str]
 
 
 class ReportReminder(Base):

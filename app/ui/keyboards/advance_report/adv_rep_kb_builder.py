@@ -12,7 +12,7 @@ class AdvanceReminderCreateUI:
             ],
             [
                 InlineKeyboardButton(
-                    text="✏️  Изменить дату приезда", callback_data="advance_today_0_0"
+                    text="✏️  Другая исходная дата", callback_data="advance_today_0_0"
                 )
             ],
             [InlineKeyboardButton(text="🏠  В меню", callback_data="to_main")],
@@ -50,11 +50,12 @@ class AdvanceReminderMessageUI:
         keyboard = [
             [
                 InlineKeyboardButton(text="🏅 Я уже отчитался!", callback_data=f"advance_del_{self.callback_key}"),
-                InlineKeyboardButton(text="⏰ Напомни завтра", callback_data="to_main"),
-            ],
+                InlineKeyboardButton(text="⏰ Напомнить позже", callback_data="to_main"),
+            ]
+            ,
             [
                 InlineKeyboardButton(
-                    text="Как оформить отчет", callback_data="home_4"
+                    text="🏠  В меню", callback_data="to_main"
                 )
             ],
         ]

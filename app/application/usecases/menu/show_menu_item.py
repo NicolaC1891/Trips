@@ -1,15 +1,11 @@
 from app.application.interfaces.menu_item_i import MenuItemRepoInterface
-from app.application.usecases.menu.dto import ShowMenuItemRequestDTO, ShowMenuItemReplyDTO
-
 
 class ShowMenuItemUseCase:
 
-    def __init__(self, repo: MenuItemRepoInterface, dto: ShowMenuItemRequestDTO):
+    def __init__(self, repo: MenuItemRepoInterface, step_key):
         self.repo = repo
-        self.dto = dto
+        self.step_key = step_key
 
-    async def __call__(self) -> ShowMenuItemReplyDTO:
-        response = await self.repo.get_response(self.dto.response_key)
-        if not response:
-            return ShowMenuItemReplyDTO(reply="Произошла ошибка. Попробуйте позже.")
-        return ShowMenuItemReplyDTO(reply=response)
+    async def __call__(self):
+        reply = await self.repo.get_response(self.step_key)
+        return reply

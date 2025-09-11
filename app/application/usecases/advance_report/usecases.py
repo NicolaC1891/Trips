@@ -12,8 +12,9 @@ from app.infra.rel_db.SQLA import ReportReminder
 
 class AskTripArrivalDateUseCase:
 
-    def __init__(self, repo: FlowRepoInterface, prefix: str, year_str: str, month_str: str):
+    def __init__(self, repo: FlowRepoInterface, table_name: str, prefix: str, year_str: str, month_str: str):
         self.repo = repo
+        self.table_name = table_name
         self.prefix = prefix
         self.year = int(year_str)
         self.month = int(month_str)
@@ -43,9 +44,8 @@ class AskTripArrivalDateUseCase:
                 raise ValueError("Unknown month prefix")
 
         days = calendar.Calendar().monthdayscalendar(self.year, self.month)
-        response = await self.repo.get_response("advance_ask_data")
-
-        return response, self.year, self.month, days
+        reply = await self.repo.get_response(self.table_name, "advance_ask_data")
+        return reply.response, self.year, self.month, days
 
 
 class GetAdvanceReportDeadlineUseCase:
@@ -61,7 +61,7 @@ class GetAdvanceReportDeadlineUseCase:
         reminder_date = cal.add_working_days(return_date, 10)
         report_deadline = cal.add_working_days(return_date, 15)
         message = (
-            f"Дата возвращения: <b>{return_date.strftime('%d.%m.%Y')}</b>\n"
+            f"Исходная дата: <b>{return_date.strftime('%d.%m.%Y')}</b>\n"
             f"Дата сдачи отчета: <b>{report_deadline.strftime('%d.%m.%Y')}</b>\n\n"
             f"Я начну напоминать за 5 дней до крайнего срока сдачи отчета. Вы хотите <b>создать напоминание</b>?"
         )
@@ -116,8 +116,8 @@ class ReportReminderUseCase:
 
     async def execute(self):
         user_data = await self.repo_reminder.get_today_reminders()
-        response = await self.repo_message.get_response("advance_notify")
-        return user_data, response
+        reply = await self.repo_message.get_response("advance", "advance_notify")
+        return user_data, reply.response
 
 
 class DeleteReminderUseCase:

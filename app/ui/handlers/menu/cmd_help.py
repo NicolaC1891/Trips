@@ -1,19 +1,23 @@
 from aiogram.types import Message
 
-from app.application.usecases.menu.dto import ShowMenuItemRequestDTO
-from app.application.usecases.menu.show_menu_item import ShowMenuItemUseCase
+from app.application.usecases.business_flow.dto import FlowStepRequestDTO
+from app.application.usecases.business_flow.usecases import FetchFlowStepUseCase
 from app.infra.rel_db.session_factory import async_session_factory
-from app.infra.repositories.menu_item_r import MenuItemRepo
-from app.ui.keyboards.menu.kb_builders import SimpleMenuUIBuilder
+from app.infra.repositories.business_flow_r import FlowRepo
+from app.ui.keyboards.business_flow.flow_step_kb_builder import FlowStepUIBuilder
 
 
 async def handle_cmd_help(message: Message):
-    async with async_session_factory() as session:
-        repo = MenuItemRepo(session)
-        input_dto = ShowMenuItemRequestDTO(response_key='help')
-        use_case = ShowMenuItemUseCase(repo, input_dto)
-        output_dto = await use_case()
+    prefix = "menu"
+    step_key = "menu_help"
 
-    reply = output_dto.reply
-    keyboard = SimpleMenuUIBuilder().build_kb()
+    async with async_session_factory() as session:
+
+        repo = FlowRepo(session)
+        input_dto = FlowStepRequestDTO(flow_prefix=prefix, step_key=step_key)
+        use_case = FetchFlowStepUseCase(repo=repo, dto=input_dto)
+        step = await use_case()
+
+    reply = step.response
+    keyboard = FlowStepUIBuilder(step).build_kb()
     await message.answer(text=reply, reply_markup=keyboard)

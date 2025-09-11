@@ -1,9 +1,11 @@
 import random
 from datetime import date
 
-from app.application.interfaces.menu_item_i import MenuItemRepoInterface
-from app.application.usecases.office_cat.dto import OfficeCatReplyDTO, OfficeCatRequestDTO
+from app.application.interfaces.business_flow_i import FlowRepoInterface
 from app.application.interfaces.cat_wisdom_i import CatWisdomRepoInterface
+from app.application.usecases.office_cat.dto import OfficeCatReplyDTO
+from app.infra.repositories.business_flow_r import FlowRepo
+from app.application.usecases.business_flow.dto import FlowStepRequestDTO
 
 
 class ShowOfficeCatUseCase:
@@ -12,25 +14,20 @@ class ShowOfficeCatUseCase:
     Random wisdom by id, seed today: all users see the same wisdom, changing daily.
     """
 
-    def __init__(
-            self,
-            wisdom_repo: CatWisdomRepoInterface,
-            menu_item_repo: MenuItemRepoInterface,
-            dto: OfficeCatRequestDTO
-    ):
+    def __init__(self, message_repo: FlowRepoInterface, wisdom_repo: CatWisdomRepoInterface, dto: FlowStepRequestDTO):
+        self.message_repo = message_repo
         self.wisdom_repo = wisdom_repo
-        self.menu_item_repo = menu_item_repo
         self.dto = dto
 
-    async def __call__(self) -> OfficeCatReplyDTO:
+    async def __call__(self):
         """
         Executes the usecase
         :return: DTO
         """
         wisdom = await self.get_random_wisdom()
-        response = await self.get_response()
-        message = response.format(wisdom_text=wisdom)
-        return OfficeCatReplyDTO(reply=message)
+        reply = await self.get_response()
+        reply.response = reply.response.format(wisdom_text=wisdom)
+        return reply
 
     async def get_random_wisdom(self) -> str:
         """
@@ -51,10 +48,8 @@ class ShowOfficeCatUseCase:
         Fetches template message from DB
         :return: Message string
         """
-        response = await self.menu_item_repo.get_response(self.dto.response_key)
-        if not response:
-            response = "Произошла ошибка. Попробуйте позже"
-        return response
+        reply = await self.message_repo.get_response(flow_name=self.dto.flow_prefix, response_key=self.dto.step_key)
+        return reply
 
     @staticmethod
     def randomize_id(ids) -> int:

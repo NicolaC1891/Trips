@@ -31,17 +31,17 @@ async def handle_enter_advance_report(callback: CallbackQuery, state: FSMContext
     await callback.answer()
     await FSMCache(state).delete("advance_report")
 
-    feature_name, prefix, year_str, month_str = callback.data.split("_")
+    table_name, prefix, year_str, month_str = callback.data.split("_")
 
     try:
         async with async_session_factory() as session:
             repo = FlowRepo(session)
             use_case = AskTripArrivalDateUseCase(
-                repo, prefix, year_str, month_str
+                repo, table_name, prefix, year_str, month_str
             )  # add DTO later
             reply, year, month, days = await use_case.execute()
         keyboard = CalendarUIBuilder(
-            feature_name, year, month, days
+            table_name, year, month, days
         ).build_calendar_keyboard()
 
     except Exception as e:
