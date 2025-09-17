@@ -135,3 +135,5 @@ x_future_chunks/chunk_reader/
 Dockerfile
 
 .dockerignore
+
+trips.tar

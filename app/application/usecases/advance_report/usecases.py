@@ -101,7 +101,7 @@ class CreateAdvanceReminder:
         cal = Belarus()
         days_left = cal.get_working_days_delta(date.today(), self.report_deadline)
         message = (f"<b>Напоминание создано!</b>\n\n"
-                   f"Дата возвращения: <b>{self.return_date.strftime('%d.%m.%Y')}</b>\n"
+                   f"Исходная дата: <b>{self.return_date.strftime('%d.%m.%Y')}</b>\n"
                    f"Рабочих дней до сдачи отчета: <b>{days_left}</b>"
                    )
 

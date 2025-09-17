@@ -13,5 +13,5 @@ BUSINESS_ITEMS = [
 
 HELP_ITEMS = [
     MenuItem(response_key="menu_help", label="🆘  Помощь"),
-    MenuItem(response_key="office_cat", label="🐈‍⬛  Идея!"),
+    MenuItem(response_key="office_cat", label="🐈‍⬛  Бонус :)"),
 ]

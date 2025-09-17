@@ -3,8 +3,6 @@ from datetime import date
 
 from app.application.interfaces.business_flow_i import FlowRepoInterface
 from app.application.interfaces.cat_wisdom_i import CatWisdomRepoInterface
-from app.application.usecases.office_cat.dto import OfficeCatReplyDTO
-from app.infra.repositories.business_flow_r import FlowRepo
 from app.application.usecases.business_flow.dto import FlowStepRequestDTO
 
 

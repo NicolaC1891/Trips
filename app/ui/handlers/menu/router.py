@@ -1,7 +1,7 @@
 from aiogram import Router
 from aiogram.filters import CommandStart
 
-from app.application.usecases.office_cat.handle_office_cat import handle_office_cat
+from app.ui.handlers.office_cat.handle_office_cat import handle_office_cat
 from app.ui.handlers.menu.cmd_help import handle_cmd_help
 from app.ui.handlers.menu.cmd_start import handle_cmd_start
 from app.ui.handlers.menu.to_main import handle_to_main
