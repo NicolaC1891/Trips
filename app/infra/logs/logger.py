@@ -1,10 +1,14 @@
 """
 Logger with log level dependency on dev/prod
 """
+from sqlite3 import IntegrityError
+from datetime import date
 
 from app.config.settings import config
 import logging
 import sys
+
+from app.infra.rel_db.SQLA import UserStats
 
 
 def create_logger():
@@ -28,3 +32,14 @@ def create_logger():
 
 
 logger = create_logger()
+
+
+async def log_user(user_id, feature_name, session):
+    cur_date = date.today()
+    record = UserStats(user_id=user_id, feature_name=feature_name, log_date=cur_date)
+    try:
+        session.add(record)
+        await session.commit()
+    except IntegrityError as e:
+        await session.rollback()
+        return

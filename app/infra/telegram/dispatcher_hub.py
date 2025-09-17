@@ -1,7 +1,7 @@
 from aiogram import Dispatcher
 
 from app.infra.logs.logger import logger
-from app.infra.telegram.middlewares.error_logging import ErrorLoggingMiddleware
+from app.infra.telegram.middlewares.logging import LoggingMiddleware
 from app.ui.handlers.business_flow.router import router as router_flow
 from app.ui.handlers.menu.router import router as router_menu
 from app.ui.handlers.fallback import router as router_fallback
@@ -23,5 +23,5 @@ def create_dispatcher():
     dp.startup.register(startup)
     dp.shutdown.register(shutdown)
     dp.include_routers(*ALL_ROUTERS)
-    dp.update.middleware(ErrorLoggingMiddleware())
+    dp.update.middleware(LoggingMiddleware())
     return dp

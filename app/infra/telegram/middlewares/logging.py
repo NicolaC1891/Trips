@@ -1,15 +1,14 @@
 from typing import Any, Callable
-
+import os
 import sentry_sdk
 from aiogram import BaseMiddleware
-from aiogram.types import TelegramObject
+from aiogram.types import TelegramObject, Message, CallbackQuery
 from aiogram.exceptions import TelegramAPIError
-
 from app.infra.logs.logger import logger
 
-
-class ErrorLoggingMiddleware(BaseMiddleware):
+class LoggingMiddleware(BaseMiddleware):
     async def __call__(self, handler: Callable, event: TelegramObject, data: dict[str, Any]) -> Any:
+
         try:
             return await handler(event, data)
 

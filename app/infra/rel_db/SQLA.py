@@ -11,7 +11,7 @@ Built using SQLAlchemy with async support. Models inherit from (DeclarativeBase 
 
 from datetime import date
 
-from sqlalchemy import Integer, Date, Text
+from sqlalchemy import Integer, Date, Text, UniqueConstraint
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -127,3 +127,14 @@ class AIChunk(Base):
     category: Mapped[str] = mapped_column(Text)  # общая категория по сущностям
     topic: Mapped[str] = mapped_column(Text, nullable=True)  # действия с сущностями
     flow_item: Mapped[str] = mapped_column(Text, nullable=True)   # пункт флоу для референса
+
+
+class UserStats(Base):
+    __tablename__ = "user_stats"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[int]
+    feature_name: Mapped[str]
+    log_date: Mapped[date]
+
+    __table_args__ = (UniqueConstraint('user_id', 'feature_name', 'log_date', name='uix_user_feature_date'), )
