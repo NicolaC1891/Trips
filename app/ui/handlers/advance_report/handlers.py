@@ -7,7 +7,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
 from app.infra.cache.fsm import FSMCache
-from app.infra.logs.logger import logger
+from app.infra.logs.logger import logger, log_user
 from app.application.usecases.advance_report.exceptions import DuplicateReminderError
 from app.infra.repositories.adv_rep_reminder_r import ReminderRepo
 from app.ui.keyboards.advance_report.adv_rep_kb_builder import AdvanceReminderCreateUI, AdvanceReminderExitUI
@@ -32,9 +32,11 @@ async def handle_enter_advance_report(callback: CallbackQuery, state: FSMContext
     await FSMCache(state).delete("advance_report")
 
     table_name, prefix, year_str, month_str = callback.data.split("_")
+    user_id = callback.from_user.id
 
     try:
         async with async_session_factory() as session:
+            await log_user(user_id, prefix, session)
             repo = FlowRepo(session)
             use_case = AskTripArrivalDateUseCase(
                 repo, table_name, prefix, year_str, month_str
