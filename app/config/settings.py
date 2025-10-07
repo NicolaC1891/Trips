@@ -10,10 +10,15 @@ class TelegramConfig(BaseModel):
     BOT_TOKEN: SecretStr
 
 
+class RouteServiceConfig(BaseModel):
+    ROUTE_TOKEN: SecretStr
+
+
 class BotConfig(BaseSettings):
     ENV: str
     TELEGRAM: TelegramConfig
     DATABASE: DatabaseConfig
+    ROUTE: RouteServiceConfig
 
     model_config = {
         "env_file": ".env",
@@ -22,5 +27,3 @@ class BotConfig(BaseSettings):
 
 
 config = BotConfig()
-
-print(config)

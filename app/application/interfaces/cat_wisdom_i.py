@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class CatWisdomRepoInterface(ABC):
+class ICatWisdomRepo(ABC):
     @abstractmethod
     async def read_wisdom(self, wisdom_id: int) -> str:
         pass

@@ -2,11 +2,11 @@ from datetime import date
 
 from sqlalchemy import select, func, delete
 
-from app.application.interfaces.adv_rep_reminder_i import ReminderRepoInterface
+from app.application.interfaces.adv_rep_reminder_i import IReminderRepo
 from app.infra.rel_db.SQLA import ReportReminder
 
 
-class ReminderRepo(ReminderRepoInterface):
+class ReminderRepo(IReminderRepo):
     def __init__(self, session):
         self.session = session
 

@@ -1,10 +1,10 @@
 from sqlalchemy import select
 
-from app.application.interfaces.cat_wisdom_i import CatWisdomRepoInterface
+from app.application.interfaces.cat_wisdom_i import ICatWisdomRepo
 from app.infra.rel_db.SQLA import CatWisdom
 
 
-class CatWisdomRepo(CatWisdomRepoInterface):
+class CatWisdomRepo(ICatWisdomRepo):
 
     def __init__(self, session):
         self.session = session

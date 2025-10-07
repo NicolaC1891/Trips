@@ -37,9 +37,4 @@ logger = create_logger()
 async def log_user(user_id, feature_name, session):
     cur_date = date.today()
     record = UserStats(user_id=user_id, feature_name=feature_name, log_date=cur_date)
-    try:
-        session.add(record)
-        await session.commit()
-    except IntegrityError as e:
-        await session.rollback()
-        return
+    session.add(record)

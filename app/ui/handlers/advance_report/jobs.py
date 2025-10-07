@@ -4,7 +4,7 @@ from sqlalchemy import delete, func
 
 from app.infra.repositories.adv_rep_reminder_r import ReminderRepo
 from app.ui.keyboards.advance_report.adv_rep_kb_builder import AdvanceReminderMessageUI
-from app.application.usecases.advance_report.usecases import ReportReminderUseCase
+from app.application.usecases.advance_report.usecases import NotifyReportDeadline
 from app.infra.repositories.business_flow_r import FlowRepo
 from app.infra.rel_db.session_factory import async_session_factory
 from app.infra.rel_db.SQLA import ReportReminder
@@ -15,7 +15,7 @@ async def send_report_reminder(notifier):
     async with async_session_factory() as session:
         repo_reminder = ReminderRepo(session)
         repo_message = FlowRepo(session)
-        use_case = ReportReminderUseCase(repo_reminder, repo_message)
+        use_case = NotifyReportDeadline(repo_reminder, repo_message)
         user_data, message = await use_case.execute()
 
         for user_item in user_data:

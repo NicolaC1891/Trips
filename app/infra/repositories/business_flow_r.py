@@ -1,29 +1,33 @@
 import json
 
 from sqlalchemy import select
-from app.application.interfaces.business_flow_i import FlowRepoInterface
-from app.application.usecases.business_flow.dto import FlowStepReplyDTO
-from app.infra.rel_db.SQLA import HomeFlowStep, AbroadFlowStep, RepexpFlowStep, MenuItem, AdvanceItem
+from app.application.interfaces.business_flow_i import IFlowRepo
+from app.application.entities.flowstep import FlowStep
+from app.infra.rel_db.SQLA import HomeFlow, AbroadFlow, RepexpFlow, MenuItem, AdvanceItem, PlannerFlow, TimesheetFlow
 
 MODEL_MAP = {
-    "home": HomeFlowStep,
-    "abroad": AbroadFlowStep,
-    "repexp": RepexpFlowStep,
+    "home": HomeFlow,
+    "abroad": AbroadFlow,
+    "repexp": RepexpFlow,
     "menu": MenuItem,
-    "advance": AdvanceItem
+    "advance": AdvanceItem,
+    "planner": PlannerFlow,
+    "timesheet": TimesheetFlow
 }
 
-class FlowRepo(FlowRepoInterface):
+
+class FlowRepo(IFlowRepo):
 
     def __init__(self, session):
         self.session = session
 
-    async def get_response(self, flow_name, response_key) -> FlowStepReplyDTO:
-        table_name = MODEL_MAP.get(flow_name)
-        statement = select(table_name).where(table_name.key == response_key)
+    async def get_response(self, table_name, step_key):
+        print(table_name, step_key)
+        table_model = MODEL_MAP.get(table_name)
+        statement = select(table_model).where(table_model.key == step_key)
         result = await self.session.execute(statement)
         record = result.scalar_one_or_none()
-        response = FlowStepReplyDTO(
+        step = FlowStep(
             key=record.key,
             response=record.response,
             children=json.loads(record.children) if record.children != "0" else None,
@@ -32,4 +36,4 @@ class FlowRepo(FlowRepoInterface):
             parent=record.parent if record.parent != "0" else None,
             label=record.label
         )
-        return response
+        return step

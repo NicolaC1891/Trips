@@ -4,7 +4,7 @@ from datetime import date
 from app.infra.rel_db.SQLA import ReportReminder
 
 
-class ReminderRepoInterface(ABC):
+class IReminderRepo(ABC):
 
     @abstractmethod
     async def create_record(self, reminder: ReportReminder):

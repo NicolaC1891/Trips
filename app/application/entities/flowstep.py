@@ -1,11 +1,7 @@
 from pydantic import BaseModel
 
-class FlowStepRequestDTO(BaseModel):
-    flow_prefix: str
-    step_key: str
 
-
-class FlowStepReplyDTO(BaseModel):
+class FlowStep(BaseModel):
     key: str | None
     response: str | None
     children: list | None

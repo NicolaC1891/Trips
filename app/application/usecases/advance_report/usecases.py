@@ -1,54 +1,13 @@
 from datetime import date
 
-from app.infra.logs.logger import logger
-from app.application.usecases.advance_report.exceptions import DuplicateReminderError
 from workalendar.europe import Belarus
-import calendar
 
-from app.application.interfaces.adv_rep_reminder_i import ReminderRepoInterface
-from app.application.interfaces.business_flow_i import FlowRepoInterface
+from app.application.interfaces.adv_rep_reminder_i import IReminderRepo
+from app.application.usecases.advance_report.exceptions import DuplicateReminderError
 from app.infra.rel_db.SQLA import ReportReminder
 
 
-class AskTripArrivalDateUseCase:
-
-    def __init__(self, repo: FlowRepoInterface, table_name: str, prefix: str, year_str: str, month_str: str):
-        self.repo = repo
-        self.table_name = table_name
-        self.prefix = prefix
-        self.year = int(year_str)
-        self.month = int(month_str)
-
-    async def execute(self):
-
-        match self.prefix:
-
-            case "today":
-                self.year = date.today().year
-                self.month = date.today().month
-
-            case "prev":
-                self.month -= 1
-                if self.month == 0:
-                    self.month = 12
-                    self.year -= 1
-
-            case "next":
-                self.month += 1
-                if self.month == 13:
-                    self.month = 1
-                    self.year += 1
-
-            case _:
-                logger.error("ShowCalendar error: unknown prefix")
-                raise ValueError("Unknown month prefix")
-
-        days = calendar.Calendar().monthdayscalendar(self.year, self.month)
-        reply = await self.repo.get_response(self.table_name, "advance_ask_data")
-        return reply.response, self.year, self.month, days
-
-
-class GetAdvanceReportDeadlineUseCase:
+class GetReportDeadline:
 
     def __init__(self, year_str: str, month_str: str, day_str: str):
         self.year = int(year_str)
@@ -58,6 +17,7 @@ class GetAdvanceReportDeadlineUseCase:
     async def execute(self):
         cal = Belarus()
         return_date = date(self.year, self.month, self.day)
+        print(return_date)
         reminder_date = cal.add_working_days(return_date, 10)
         report_deadline = cal.add_working_days(return_date, 15)
         message = (
@@ -72,7 +32,7 @@ class GetAdvanceReportDeadlineUseCase:
 class CreateAdvanceReminder:
 
     def __init__(
-            self, repo: ReminderRepoInterface,
+            self, repo: IReminderRepo,
             user_id: int,
             return_date: date,
             reminder_date: date,
@@ -108,7 +68,7 @@ class CreateAdvanceReminder:
         return message
 
 
-class ReportReminderUseCase:
+class NotifyReportDeadline:
 
     def __init__(self, repo_reminder, repo_message):
         self.repo_reminder = repo_reminder
@@ -120,7 +80,7 @@ class ReportReminderUseCase:
         return user_data, reply.response
 
 
-class DeleteReminderUseCase:
+class DeleteAdvanceReminder:
 
     def __init__(self, repo, user_id, return_date):
         self.repo = repo

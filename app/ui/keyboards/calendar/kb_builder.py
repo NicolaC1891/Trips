@@ -34,14 +34,14 @@ class CalendarUIBuilder:
         header = [
             InlineKeyboardButton(
                 text=self.PREV_BTN,
-                callback_data=f"{self.feature}_prev_{self.year}_{self.month}",
+                callback_data=f"{self.feature}_calprev_{self.year}_{self.month}",
             ),
             InlineKeyboardButton(
                 text=f"{MONTHS_RU[self.month]} {self.year}", callback_data="ignore"
             ),
             InlineKeyboardButton(
                 text=self.NEXT_BTN,
-                callback_data=f"{self.feature}_next_{self.year}_{self.month}",
+                callback_data=f"{self.feature}_calnext_{self.year}_{self.month}",
             ),
         ]
         return header
@@ -75,7 +75,7 @@ class CalendarUIBuilder:
     def _make_footer(self) -> list[InlineKeyboardButton]:
         footer = [
             InlineKeyboardButton(
-                text=self.RESET_BTN, callback_data=f"{self.feature}_today_0_0"
+                text=self.RESET_BTN, callback_data=f"{self.feature}_caltoday_0_0"
             ),
             InlineKeyboardButton(text=self.TO_MAIN_BTN, callback_data="to_main"),
         ]

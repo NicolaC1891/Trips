@@ -1,21 +1,19 @@
 from aiogram.types import Message
 
-from app.application.usecases.business_flow.dto import FlowStepRequestDTO
-from app.application.usecases.business_flow.usecases import FetchFlowStepUseCase
+from app.application.usecases.business_flow.usecases import GetFlowStep
 from app.infra.rel_db.session_factory import async_session_factory
 from app.infra.repositories.business_flow_r import FlowRepo
 from app.ui.keyboards.business_flow.flow_step_kb_builder import FlowStepUIBuilder
 
 
 async def handle_cmd_help(message: Message):
-    prefix = "menu"
+    table_name = "menu"
     step_key = "menu_help"
 
     async with async_session_factory() as session:
 
         repo = FlowRepo(session)
-        input_dto = FlowStepRequestDTO(flow_prefix=prefix, step_key=step_key)
-        use_case = FetchFlowStepUseCase(repo=repo, dto=input_dto)
+        use_case = GetFlowStep(repo=repo, table_name=table_name, step_key=step_key)
         step = await use_case()
 
     reply = step.response

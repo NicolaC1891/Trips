@@ -11,7 +11,7 @@ Built using SQLAlchemy with async support. Models inherit from (DeclarativeBase 
 
 from datetime import date
 
-from sqlalchemy import Integer, Date, Text, UniqueConstraint
+from sqlalchemy import Integer, Date, Text, UniqueConstraint, String
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -20,70 +20,43 @@ class Base(AsyncAttrs, DeclarativeBase):
     __abstract__ = True
 
 
-class MenuItem(Base):
-    """
-    Stores predefined response texts for menu options and feature entrypoints.
+class FlowStepBase(Base):
+    __abstract__ = True
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    key: Mapped[str] = mapped_column(String)
+    response: Mapped[str] = mapped_column(String)
+    children: Mapped[str] = mapped_column(String)
+    prev: Mapped[str] = mapped_column(String)
+    next_: Mapped[str] = mapped_column(String)
+    parent: Mapped[str] = mapped_column(String)
+    label: Mapped[str] = mapped_column(String)
 
-    Fields:
-    - key: string identifier (command, keyword, or message trigger)
-    - response: text shown to the user as a reply
-    """
 
+class MenuItem(FlowStepBase):
     __tablename__ = "menu"
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    key: Mapped[str]
-    response: Mapped[str]
-    children: Mapped[str]
-    prev: Mapped[str]
-    next_: Mapped[str]
-    parent: Mapped[str]
-    label: Mapped[str]
 
 
-class HomeFlowStep(Base):
+class HomeFlow(FlowStepBase):
     __tablename__ = "home"
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    key: Mapped[str]
-    response: Mapped[str]
-    children: Mapped[str]
-    prev: Mapped[str]
-    next_: Mapped[str]
-    parent: Mapped[str]
-    label: Mapped[str]
 
-class AbroadFlowStep(Base):
+
+class AbroadFlow(FlowStepBase):
     __tablename__ = "abroad"
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    key: Mapped[str]
-    response: Mapped[str]
-    children: Mapped[str]
-    prev: Mapped[str]
-    next_: Mapped[str]
-    parent: Mapped[str]
-    label: Mapped[str]
 
-class RepexpFlowStep(Base):
+
+class RepexpFlow(FlowStepBase):
     __tablename__ = "repexp"
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    key: Mapped[str]
-    response: Mapped[str]
-    children: Mapped[str]
-    prev: Mapped[str]
-    next_: Mapped[str]
-    parent: Mapped[str]
-    label: Mapped[str]
 
 
-class AdvanceItem(Base):
+class AdvanceItem(FlowStepBase):
     __tablename__ = "advance"
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    key: Mapped[str]
-    response: Mapped[str]
-    children: Mapped[str]
-    prev: Mapped[str]
-    next_: Mapped[str]
-    parent: Mapped[str]
-    label: Mapped[str]
+
+
+class PlannerFlow(FlowStepBase):
+    __tablename__ = "planner"
+
+class TimesheetFlow(FlowStepBase):
+    __tablename__ = "timesheet"
 
 
 class ReportReminder(Base):
@@ -119,22 +92,25 @@ class CatWisdom(Base):
     wisdom: Mapped[str]
 
 
-class AIChunk(Base):
-    __tablename__ = 'chunks'
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    chunk_text: Mapped[str] = mapped_column(Text)
-    category: Mapped[str] = mapped_column(Text)  # общая категория по сущностям
-    topic: Mapped[str] = mapped_column(Text, nullable=True)  # действия с сущностями
-    flow_item: Mapped[str] = mapped_column(Text, nullable=True)   # пункт флоу для референса
-
-
 class UserStats(Base):
     __tablename__ = "user_stats"
+    __table_args__ = (UniqueConstraint('user_id', 'feature_name', 'log_date', name='uix_user_feature_date'), )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     user_id: Mapped[int]
     feature_name: Mapped[str]
     log_date: Mapped[date]
 
-    __table_args__ = (UniqueConstraint('user_id', 'feature_name', 'log_date', name='uix_user_feature_date'), )
+
+class PlannerCities(Base):
+    __tablename__ = "cities"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    cityname: Mapped[int]
+    region: Mapped[str]
+    city: Mapped[str]
+    hotel: Mapped[str]
+    lat: Mapped[float]
+    lon: Mapped[float]
+
+
