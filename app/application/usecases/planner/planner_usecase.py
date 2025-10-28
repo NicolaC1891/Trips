@@ -68,7 +68,7 @@ class ShowTripInfoUseCase:
         distance, duration = await self.route_service.get_route(start_coord, end_coord)
         hours = int(duration // 3600)
         minutes = int((duration % 3600) // 60)
-        message = (f"<b>Информация о маршруте</b>\n\n"
+        message = (f"🚂 <b>Информация о маршруте</b>\n\n"
                    f"Расстояние: <b>{int(distance / 1000)} км.</b>\n"
                    f"Время в пути: <b>{hours}</b> ч. <b>{minutes}</b> мин.")
 
@@ -76,7 +76,7 @@ class ShowTripInfoUseCase:
 
     async def get_hotels(self):
         hotels = await self.repo.get_city_details(self.city_to)
-        message_hotels = "<b>Рекомендуемые гостиницы</b>\n" + hotels
+        message_hotels = "🏨 <b>Рекомендуемые гостиницы</b>\n\n" + hotels
         return message_hotels
 
     async def get_weather(self):
